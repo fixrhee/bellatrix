@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:udp="http://www.mulesoft.org/schema/mule/udp" xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/udp http://www.mulesoft.org/schema/mule/udp/current/mule-udp.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+
+	<flow name="requestLogConfigFlow">
+		<vm:inbound-endpoint exchange-pattern="one-way"
+			connector-ref="Access_Log_VM" path="request.access.log" doc:name="VM" />
+		<set-variable
+			value="#[org.apache.commons.lang.StringUtils.replace(message.inboundProperties.'trxType','&quot;','')]"
+			variableName="type" doc:name="Variable" />
+		<set-variable value="#[message.id]" variableName="messageID"
+			doc:name="Variable" />
+		<json:object-to-json-transformer
+			doc:name="Object to JSON" />
+		<logger level="INFO" category="access.log"
+			message="[REQUEST  : {#[messageID]} = #[flowVars['type']]/#[payload]]"
+			doc:name="Logger" />
+	</flow>
+
+	<flow name="respondLogConfigFlow">
+		<vm:inbound-endpoint exchange-pattern="one-way"
+			connector-ref="Access_Log_VM" path="response.access.log" doc:name="VM" />
+		<set-variable
+			value="#[org.apache.commons.lang.StringUtils.replace(message.inboundProperties.'trxType','&quot;','')]"
+			variableName="type" doc:name="Variable" />
+		<set-variable value="#[message.id]" variableName="messageID"
+			doc:name="Variable" />
+		<json:object-to-json-transformer
+			doc:name="Object to JSON" />
+		<logger level="INFO" category="access.log"
+			message="[RESPONSE : {#[messageID]} = #[flowVars['type']]/#[payload]]"
+			doc:name="Logger" />
+	</flow>
+
+	<flow name="exceptionLogConfigFlow">
+		<vm:inbound-endpoint exchange-pattern="one-way"
+			connector-ref="Access_Log_VM" path="exception.access.log" doc:name="VM" />
+		<set-variable
+			value="#[org.apache.commons.lang.StringUtils.replace(message.inboundProperties.'trxType','&quot;','')]"
+			variableName="type" doc:name="Variable" />
+		<set-variable value="#[message.id]" variableName="messageID"
+			doc:name="Variable" />
+		<json:object-to-json-transformer
+			doc:name="Object to JSON" />
+		<logger level="INFO" category="access.log"
+			message="[EXCEPTION : {#[messageID]} = #[flowVars['type']]/#[payload]]"
+			doc:name="Logger" />
+	</flow>
+
+</mule>
