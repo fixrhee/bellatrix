@@ -40,11 +40,23 @@ http://www.mulesoft.org/schema/mule/udp http://www.mulesoft.org/schema/mule/udp/
 	<http:listener-config name="HTTP_Listener_Configuration"
 		host="0.0.0.0" port="8081" basePath="bellatrix/host/services"
 		doc:name="HTTP Listener Configuration" />
-	
+
 	<vm:connector name="Notification_VM" validateConnections="true"
 		doc:name="VM" />
 	<vm:endpoint exchange-pattern="request-response" path="notification"
 		connector-ref="Notification_VM" name="NotificationVM" doc:name="VM" />
+
+	<vm:connector name="KYCNotification_VM"
+		validateConnections="true" doc:name="VM" />
+	<vm:endpoint exchange-pattern="one-way" path="kyc.notification"
+		connector-ref="KYCNotification_VM" name="KYCNotificationVM" doc:name="VM" />
+
+	<vm:connector name="KYCNotificationReject_VM"
+		validateConnections="true" doc:name="VM" />
+	<vm:endpoint exchange-pattern="one-way" path="kyc.notification.reject"
+		connector-ref="KYCNotificationReject_VM" name="KYCNotificationRejectVM"
+		doc:name="VM" />
+
 	<vm:connector name="Access_Log_VM" validateConnections="true"
 		doc:name="VM" />
 

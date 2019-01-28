@@ -26,6 +26,11 @@ public interface Webservice {
 			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
 			@WebParam LoadWebserviceRequest req);
 
+	@WebMethod(action = "loadWebservicesPermission")
+	public LoadWebserviceResponse loadWebservicesPermission(
+			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
+			@WebParam LoadWebserviceRequest req);
+
 	@WebMethod(action = "createWebservices")
 	public void createWebservices(@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
 			@WebParam CreateWebserviceRequest req) throws TransactionException;

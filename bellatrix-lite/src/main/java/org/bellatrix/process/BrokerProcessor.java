@@ -44,28 +44,35 @@ public class BrokerProcessor {
 
 				BigDecimal fixedBrokering = BigDecimal.ZERO;
 				BigDecimal percentageBrokering = BigDecimal.ZERO;
+				BigDecimal result = BigDecimal.ZERO;
 
-				if (lb.get(j).getFixedAmount().compareTo(BigDecimal.ZERO) == 1) {
-					fixedBrokering = lb.get(j).getFixedAmount();
-				}
-
-				if (lb.get(j).getPercentageValue().compareTo(BigDecimal.ZERO) == 1) {
-					percentageBrokering = feeAmount.multiply(lb.get(j).getPercentageValue())
-							.divide(new BigDecimal(100));
-				}
-
-				if (fixedBrokering.compareTo(percentageBrokering) == 0
-						|| fixedBrokering.compareTo(percentageBrokering) == 1) {
-					brokeringAmount.add(fixedBrokering);
-					lb.get(j).setFeeAmount(fixedBrokering);
-					logger.info("[Brokering by Amount : " + fixedBrokering + "]");
+				if (lb.get(j).isDeductAllFee()) {
+					result = feeAmount;
+					lb.get(j).setFeeAmount(feeAmount);
+					logger.info("[Brokering From All Fee : " + result + "]");
 				} else {
-					brokeringAmount.add(percentageBrokering);
-					lb.get(j).setFeeAmount(percentageBrokering);
-					logger.info("[Brokering by Percentage : " + percentageBrokering + "]");
-				}
+					if (lb.get(j).getFixedAmount().compareTo(BigDecimal.ZERO) == 1) {
+						fixedBrokering = lb.get(j).getFixedAmount();
+					}
 
-				BigDecimal result = brokeringAmount.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+					if (lb.get(j).getPercentageValue().compareTo(BigDecimal.ZERO) == 1) {
+						percentageBrokering = feeAmount.multiply(lb.get(j).getPercentageValue())
+								.divide(new BigDecimal(100));
+					}
+
+					if (fixedBrokering.compareTo(percentageBrokering) == 0
+							|| fixedBrokering.compareTo(percentageBrokering) == 1) {
+						brokeringAmount.add(fixedBrokering);
+						lb.get(j).setFeeAmount(fixedBrokering);
+						logger.info("[Brokering by Amount : " + fixedBrokering + "]");
+					} else {
+						brokeringAmount.add(percentageBrokering);
+						lb.get(j).setFeeAmount(percentageBrokering);
+						logger.info("[Brokering by Percentage : " + percentageBrokering + "]");
+					}
+
+					result = brokeringAmount.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+				}
 
 				if (feeAmount.compareTo(result) == 0 || feeAmount.compareTo(result) == 1) {
 
@@ -77,10 +84,32 @@ public class BrokerProcessor {
 					if (lb.get(j).getFromMemberID() == 0 || lb.get(j).getFromAccountID() == 0) {
 						lb.get(j).setFromMemberID(fees.get(i).getFromMemberID());
 						lb.get(j).setFromAccountID(fees.get(i).getFromAccountID());
+
+						logger.info("[SOURCE Brokering]");
+						logger.info("[BROKER Source Member ID : " + lb.get(j).getFromMemberID() + "]");
+						logger.info("[BROKER Source Account ID : " + lb.get(j).getFromAccountID() + "]");
+
+						logger.info("[BROKER Destination Member ID : " + lb.get(j).getToMemberID() + "]");
+						logger.info("[BROKER Destination Account ID : " + lb.get(j).getToAccountID() + "]");
+
 					} else if (lb.get(j).getFromMemberID() == -1 || lb.get(j).getFromAccountID() == -1) {
 						lb.get(j).setFromMemberID(fees.get(i).getToMemberID());
 						lb.get(j).setFromAccountID(fees.get(i).getToAccountID());
+
+						logger.info("[DESTINATION Brokering]");
+						logger.info("[BROKER Source Member ID : " + lb.get(j).getFromMemberID() + "]");
+						logger.info("[BROKER Source Account ID : " + lb.get(j).getFromAccountID() + "]");
+
+						logger.info("[BROKER Destination Member ID : " + lb.get(j).getToMemberID() + "]");
+						logger.info("[BROKER Destination Account ID : " + lb.get(j).getToAccountID() + "]");
+
 					} else {
+
+						logger.info("[BROKER Source Member ID : " + lb.get(j).getFromMemberID() + "]");
+						logger.info("[BROKER Source Account ID : " + lb.get(j).getFromAccountID() + "]");
+
+						logger.info("[BROKER Destination Member ID : " + lb.get(j).getToMemberID() + "]");
+						logger.info("[BROKER Destination Account ID : " + lb.get(j).getToAccountID() + "]");
 
 						/*
 						 * From Brokering Member Validation
@@ -111,7 +140,7 @@ public class BrokerProcessor {
 							lb.get(j).getToMemberID());
 
 					if (toBrokerMember == null) {
-						logger.info("[Source Brokering MemberID Not Found [" + lb.get(j).getToMemberID() + "]]");
+						logger.info("[Destination Brokering MemberID Not Found [" + lb.get(j).getToMemberID() + "]]");
 						throw new TransactionException(String.valueOf(Status.MEMBER_NOT_FOUND));
 					}
 
@@ -119,9 +148,9 @@ public class BrokerProcessor {
 					 * To Brokering Account Validation
 					 */
 					Accounts toBrokerAccount = baseRepository.getAccountsRepository()
-							.loadAccountsByID(lb.get(j).getFromAccountID(), toBrokerMember.getGroupID());
+							.loadAccountsByID(lb.get(j).getToAccountID(), toBrokerMember.getGroupID());
 					if (toBrokerAccount == null) {
-						logger.info("[Invalid Source Brokering AccountID [" + lb.get(j).getToAccountID() + "]]");
+						logger.info("[Invalid Destination Brokering AccountID [" + lb.get(j).getToAccountID() + "]]");
 						throw new TransactionException(String.valueOf(Status.INVALID_ACCOUNT));
 					}
 
@@ -133,6 +162,7 @@ public class BrokerProcessor {
 					lb.get(j).setTransactionNumber(brokeringTrxNo);
 					lb.get(j).setFeeTransactionNumber(fees.get(i).getTransactionNumber());
 					lb.get(j).setRequestTransactionAmount(transactionNumber);
+					
 					br.setTotalBrokeringAmount(result);
 					br.setFeeAmount(feeAmount);
 					br.setListBrokers(lb);

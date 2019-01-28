@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.bellatrix.data.Groups;
 import org.bellatrix.data.WebServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -93,6 +94,8 @@ public class WebserviceRepository {
 							ws.setActive(rs.getBoolean("active"));
 							ws.setId(rs.getInt("id"));
 							ws.setName(rs.getString("name"));
+							ws.setUsername(rs.getString("username"));
+							ws.setPassword(rs.getString("password"));
 							ws.setHash(rs.getString("hash"));
 							ws.setSecureTransaction(rs.getBoolean("credentials"));
 							return ws;
@@ -114,6 +117,8 @@ public class WebserviceRepository {
 							ws.setId(rs.getInt("id"));
 							ws.setName(rs.getString("name"));
 							ws.setHash(rs.getString("hash"));
+							ws.setUsername(rs.getString("username"));
+							ws.setPassword(rs.getString("password"));
 							ws.setSecureTransaction(rs.getBoolean("credentials"));
 							return ws;
 						}
@@ -136,6 +141,27 @@ public class WebserviceRepository {
 							ws.setName(rs.getString("name"));
 							ws.setHash(rs.getString("hash"));
 							ws.setSecureTransaction(rs.getBoolean("credentials"));
+							return ws;
+						}
+					});
+			return ws;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+
+	public List<WebServices> loadWebservicesPermission(Integer id) {
+		try {
+			List<WebServices> ws = this.jdbcTemplate.query(
+					"select p.id as permission_id, g.id as group_id, g.name from groups g inner join webservice_permissions p on g.id = p.group_id where p.webservice_id = ?;",
+					new Object[] { id }, new RowMapper<WebServices>() {
+						public WebServices mapRow(ResultSet rs, int rowNum) throws SQLException {
+							WebServices ws = new WebServices();
+							ws.setPermissionID(rs.getInt("permission_id"));
+							Groups group = new Groups();
+							group.setId(rs.getInt("group_id"));
+							group.setName(rs.getString("name"));
+							ws.setGroup(group);
 							return ws;
 						}
 					});
@@ -171,8 +197,8 @@ public class WebserviceRepository {
 	public void updateWebservice(Integer id, String username, String password, String name, String hash, boolean active,
 			boolean credential) {
 		this.jdbcTemplate.update(
-				"update webservices set username  ?, password = ?, name = ?, hash = ?, active = ?, credentials = ? where id = ? ;",
-				id, username, password, name, hash, active, credential);
+				"update webservices set username = ?, password = ?, name = ?, hash = ?, active = ?, credentials = ? where id = ? ;",
+				username, password, name, hash, active, credential, id);
 	}
 
 	public void deleteWebservice(Integer id) {
@@ -187,6 +213,10 @@ public class WebserviceRepository {
 	public void deleteWebservicePermission(Integer wsID, Integer groupID) {
 		this.jdbcTemplate.update("delete from webservice_permissions where webservice_id = ? and group_id = ?;", wsID,
 				groupID);
+	}
+
+	public void deleteWebservicePermission(Integer id) {
+		this.jdbcTemplate.update("delete from webservice_permissions where id = ?;", id);
 	}
 
 	@Autowired

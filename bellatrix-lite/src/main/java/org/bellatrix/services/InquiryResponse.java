@@ -15,8 +15,11 @@ public class InquiryResponse implements Serializable {
 	private Members fromMember;
 	private Members toMember;
 	private BigDecimal transactionAmount;
+	private String formattedTransactionAmount;
 	private BigDecimal finalAmount;
+	private String formattedFinalAmount;
 	private BigDecimal totalFees;
+	private String formattedTotalFees;
 	private TransferTypeFields transferType;
 	private ResponseStatus status;
 
@@ -74,5 +77,29 @@ public class InquiryResponse implements Serializable {
 
 	public void setTransferType(TransferTypeFields transferType) {
 		this.transferType = transferType;
+	}
+
+	public String getFormattedTransactionAmount() {
+		return formattedTransactionAmount;
+	}
+
+	public void setFormattedTransactionAmount(String formattedTransactionAmount) {
+		this.formattedTransactionAmount = formattedTransactionAmount;
+	}
+
+	public String getFormattedFinalAmount() {
+		return formattedFinalAmount;
+	}
+
+	public void setFormattedFinalAmount(String formattedFinalAmount) {
+		this.formattedFinalAmount = formattedFinalAmount;
+	}
+
+	public String getFormattedTotalFees() {
+		return formattedTotalFees;
+	}
+
+	public void setFormattedTotalFees(String formattedTotalFees) {
+		this.formattedTotalFees = formattedTotalFees;
 	}
 }

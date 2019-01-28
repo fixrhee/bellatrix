@@ -122,4 +122,21 @@ public class WebserviceImpl implements Webservice {
 		webserviceValidation.validateDeleteWSPermission(req);
 	}
 
+	@Override
+	public LoadWebserviceResponse loadWebservicesPermission(Holder<Header> headerParam, LoadWebserviceRequest req) {
+		LoadWebserviceResponse lwr = new LoadWebserviceResponse();
+		try {
+			if (req.getId() == null) {
+				lwr.setStatus(StatusBuilder.getStatus(Status.INVALID_PARAMETER));
+			}
+			List<WebServices> lw = webserviceValidation.validateLoadWSPermission(headerParam.value.getToken(), req);
+			lwr.setWebservice(lw);
+			lwr.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
+			return lwr;
+		} catch (TransactionException ex) {
+			lwr.setStatus(StatusBuilder.getStatus(ex.getMessage()));
+			return lwr;
+		}
+	}
+
 }

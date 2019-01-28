@@ -37,6 +37,7 @@ public class TransferHistory {
 	}
 
 	private BigDecimal amount;
+	private String formattedAmount;
 	private String transactionNumber;
 	private String parentID;
 	private String description;
@@ -123,6 +124,14 @@ public class TransferHistory {
 
 	public void setTransferType(TransferTypeFields transferType) {
 		this.transferType = transferType;
+	}
+
+	public String getFormattedAmount() {
+		return formattedAmount;
+	}
+
+	public void setFormattedAmount(String formattedAmount) {
+		this.formattedAmount = formattedAmount;
 	}
 
 }

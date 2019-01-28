@@ -28,6 +28,6 @@ public class CurrencyValidation {
 
 	public void updateCurrency(CurrencyRequest req) {
 		baseRepository.getCurrenciesRepository().updateCurrency(req.getName(), req.getCode(), req.getPrefix(),
-				req.getTrailer(), req.getFormat(), req.getGroupingSeparator(), req.getDecimalSeparator());
+				req.getTrailer(), req.getFormat(), req.getGroupingSeparator(), req.getDecimalSeparator(), req.getId());
 	}
 }

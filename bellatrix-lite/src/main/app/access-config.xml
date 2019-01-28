@@ -12,8 +12,9 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
-
-	<spring:bean id="AccessMessageServiceImpl" class="org.bellatrix.process.AccessServiceImpl" />
+	<spring:beans>
+		<spring:bean id="AccessMessageServiceImpl" class="org.bellatrix.process.AccessServiceImpl" />
+	</spring:beans>
 
 	<flow name="accessFlow">
 		<http:listener config-ref="HTTP_Listener_Configuration"

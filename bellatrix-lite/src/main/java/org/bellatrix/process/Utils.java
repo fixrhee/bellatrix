@@ -17,11 +17,11 @@ import org.apache.commons.lang.time.DateFormatUtils;
 
 public abstract class Utils {
 
-	public static String formatAmount(BigDecimal amount, char grouping, char decimal, String format, String prefix,
+	public static String formatAmount(BigDecimal amount, String grouping, String decimal, String format, String prefix,
 			String trailer) {
 		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
-		symbols.setGroupingSeparator(grouping);
-		symbols.setDecimalSeparator(decimal);
+		symbols.setGroupingSeparator(grouping.charAt(0));
+		symbols.setDecimalSeparator(decimal.charAt(0));
 		DecimalFormat df = new DecimalFormat(format, symbols);
 		if (prefix == null) {
 			prefix = "";

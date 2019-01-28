@@ -2,6 +2,7 @@ package org.bellatrix.services;
 
 public class TransferTypePermissionRequest {
 
+	private Integer id;
 	private Integer transferTypeID;
 	private Integer groupID;
 
@@ -19,6 +20,14 @@ public class TransferTypePermissionRequest {
 
 	public void setGroupID(Integer groupID) {
 		this.groupID = groupID;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 }

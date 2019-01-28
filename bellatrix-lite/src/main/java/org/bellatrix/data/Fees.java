@@ -10,17 +10,22 @@ public class Fees implements Serializable {
 	private Integer id;
 	private Integer transferTypeID;
 	private Integer fromMemberID;
+	private String fromMemberName;
 	private Members fromMember;
 	private Integer toMemberID;
+	private String toMemberName;
 	private Members toMember;
 	private Integer fromAccountID;
+	private String fromAccountName;
 	private Integer toAccountID;
+	private String toAccountName;
 	private String name;
 	private String description;
 	private boolean enabled;
 	private boolean deductAmount;
-	private boolean fromAllGroup;
-	private boolean toAllGroup;
+	private boolean fromAllMember;
+	private boolean toAllMember;
+	private boolean priority;
 	private BigDecimal fixedAmount;
 	private BigDecimal percentageValue;
 	private BigDecimal initialRangeAmount;
@@ -174,22 +179,6 @@ public class Fees implements Serializable {
 		this.startDate = startDate;
 	}
 
-	public boolean isFromAllGroup() {
-		return fromAllGroup;
-	}
-
-	public void setFromAllGroup(boolean fromAllGroup) {
-		this.fromAllGroup = fromAllGroup;
-	}
-
-	public boolean isToAllGroup() {
-		return toAllGroup;
-	}
-
-	public void setToAllGroup(boolean toAllGroup) {
-		this.toAllGroup = toAllGroup;
-	}
-
 	public Members getFromMember() {
 		return fromMember;
 	}
@@ -204,6 +193,62 @@ public class Fees implements Serializable {
 
 	public void setToMember(Members toMember) {
 		this.toMember = toMember;
+	}
+
+	public boolean isPriority() {
+		return priority;
+	}
+
+	public void setPriority(boolean priority) {
+		this.priority = priority;
+	}
+
+	public String getFromAccountName() {
+		return fromAccountName;
+	}
+
+	public void setFromAccountName(String fromAccountName) {
+		this.fromAccountName = fromAccountName;
+	}
+
+	public String getToAccountName() {
+		return toAccountName;
+	}
+
+	public void setToAccountName(String toAccountName) {
+		this.toAccountName = toAccountName;
+	}
+
+	public String getFromMemberName() {
+		return fromMemberName;
+	}
+
+	public void setFromMemberName(String fromMemberName) {
+		this.fromMemberName = fromMemberName;
+	}
+
+	public String getToMemberName() {
+		return toMemberName;
+	}
+
+	public void setToMemberName(String toMemberName) {
+		this.toMemberName = toMemberName;
+	}
+
+	public boolean isFromAllMember() {
+		return fromAllMember;
+	}
+
+	public void setFromAllMember(boolean fromAllMember) {
+		this.fromAllMember = fromAllMember;
+	}
+
+	public boolean isToAllMember() {
+		return toAllMember;
+	}
+
+	public void setToAllMember(boolean toAllMember) {
+		this.toAllMember = toAllMember;
 	}
 
 }

@@ -11,6 +11,7 @@ import org.bellatrix.data.CategoryMenuData;
 import org.bellatrix.data.ChildMenu;
 import org.bellatrix.data.ParentMenu;
 import org.bellatrix.data.ParentMenuData;
+import org.bellatrix.data.WelcomeMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -142,32 +143,50 @@ public class MenuRepository {
 		}
 	}
 
-	public String loadWelcomeMenuLinkByGroup(Integer groupID) {
+	public WelcomeMenu loadWelcomeMenuLinkByGroup(Integer groupID) {
 		try {
-			String welcomeMenu = this.jdbcTemplate.queryForObject("select link from menu_welcome where group_id = ? ",
-					new Object[] { groupID }, String.class);
+			WelcomeMenu welcomeMenu = this.jdbcTemplate.queryForObject(
+					"select * from menu_welcome where group_id = ?;", new Object[] { groupID },
+					new RowMapper<WelcomeMenu>() {
+						public WelcomeMenu mapRow(ResultSet rs, int rowNum) throws SQLException {
+							WelcomeMenu welcomeMenu = new WelcomeMenu();
+							welcomeMenu.setId(rs.getInt("id"));
+							welcomeMenu.setLink(rs.getString("link"));
+							return welcomeMenu;
+						}
+					});
 			return welcomeMenu;
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
 	}
 
-	public String loadWelcomeMenuLinkByID(Integer id) {
+	public WelcomeMenu loadWelcomeMenuLinkByID(Integer id) {
 		try {
-			String welcomeMenu = this.jdbcTemplate.queryForObject("select link from menu_welcome where id = ? ",
-					new Object[] { id }, String.class);
+			WelcomeMenu welcomeMenu = this.jdbcTemplate.queryForObject("select * from menu_welcome where id = ? ",
+					new Object[] { id }, new RowMapper<WelcomeMenu>() {
+						public WelcomeMenu mapRow(ResultSet rs, int rowNum) throws SQLException {
+							WelcomeMenu welcomeMenu = new WelcomeMenu();
+							welcomeMenu.setId(rs.getInt("id"));
+							welcomeMenu.setLink(rs.getString("link"));
+							return welcomeMenu;
+						}
+					});
 			return welcomeMenu;
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
 	}
 
-	public List<String> loadWelcomeMenuLink() {
+	public List<WelcomeMenu> loadWelcomeMenuLink() {
 		try {
-			List<String> welcomeMenu = this.jdbcTemplate.query("select link from menu_welcome;",
-					new RowMapper<String>() {
-						public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-							return rs.getString("link");
+			List<WelcomeMenu> welcomeMenu = this.jdbcTemplate.query("select * from menu_welcome",
+					new RowMapper<WelcomeMenu>() {
+						public WelcomeMenu mapRow(ResultSet rs, int rowNum) throws SQLException {
+							WelcomeMenu welcomeMenu = new WelcomeMenu();
+							welcomeMenu.setId(rs.getInt("id"));
+							welcomeMenu.setLink(rs.getString("link"));
+							return welcomeMenu;
 						}
 					});
 			return welcomeMenu;
@@ -216,7 +235,7 @@ public class MenuRepository {
 
 	public List<ChildMenu> loadChildMenuByParentID(Integer id) {
 		try {
-			List<ChildMenu> catMenu = this.jdbcTemplate.query("select * from menu_child where parent_id = ?;",
+			List<ChildMenu> catMenu = this.jdbcTemplate.query("select * from menu_child where menu_parent_id = ?;",
 					new Object[] { id }, new RowMapper<ChildMenu>() {
 						public ChildMenu mapRow(ResultSet rs, int rowNum) throws SQLException {
 							ChildMenu catMenu = new ChildMenu();

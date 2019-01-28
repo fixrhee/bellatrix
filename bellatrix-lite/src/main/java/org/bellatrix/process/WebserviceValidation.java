@@ -29,6 +29,7 @@ public class WebserviceValidation {
 	public WebServices validateWebserviceByID(Integer id) throws TransactionException {
 		return baseRepository.getWebServicesRepository().validateWebService(id);
 	}
+
 	public WebServices validateWebservice(String username, String password) throws TransactionException {
 		return baseRepository.getWebServicesRepository().validateWebService(username, password);
 	}
@@ -54,6 +55,12 @@ public class WebserviceValidation {
 		} else {
 			return baseRepository.getWebServicesRepository().loadWebservices(req.getCurrentPage(), req.getPageSize());
 		}
+	}
+
+	public List<WebServices> validateLoadWSPermission(String token, LoadWebserviceRequest req)
+			throws TransactionException {
+		this.validateWebservice(token);
+		return baseRepository.getWebServicesRepository().loadWebservicesPermission(req.getId());
 	}
 
 	public List<WebServices> validateWSByGroup(String token, LoadWebserviceRequest req) throws TransactionException {
@@ -91,13 +98,16 @@ public class WebserviceValidation {
 	}
 
 	public void validateDeleteWSPermission(WebservicePermissionRequest req) throws TransactionException {
-		if (baseRepository.getWebServicesRepository().validateGroupAccessToWebService(req.getWebserviceID(),
-				req.getGroupID()) == true) {
-			baseRepository.getWebServicesRepository().deleteWebservicePermission(req.getWebserviceID(),
-					req.getGroupID());
+		if (req.getId() != null) {
+			baseRepository.getWebServicesRepository().deleteWebservicePermission(req.getId());
 		} else {
-			throw new TransactionException(String.valueOf(Status.INVALID_PARAMETER));
+			if (baseRepository.getWebServicesRepository().validateGroupAccessToWebService(req.getWebserviceID(),
+					req.getGroupID()) == true) {
+				baseRepository.getWebServicesRepository().deleteWebservicePermission(req.getWebserviceID(),
+						req.getGroupID());
+			} else {
+				throw new TransactionException(String.valueOf(Status.INVALID_PARAMETER));
+			}
 		}
 	}
-
 }

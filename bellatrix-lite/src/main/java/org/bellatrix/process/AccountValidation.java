@@ -3,6 +3,7 @@ package org.bellatrix.process;
 import java.math.BigDecimal;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.bellatrix.data.AccountPermissions;
 import org.bellatrix.data.Accounts;
 import org.bellatrix.data.Members;
 import org.bellatrix.data.Status;
@@ -34,6 +35,28 @@ public class AccountValidation {
 			throw new TransactionException(String.valueOf(Status.INVALID_ACCOUNT));
 		}
 		return fromAccount;
+	}
+
+	public List<AccountPermissions> validateAccountPermission(Integer accountID) throws TransactionException {
+		List<AccountPermissions> accountPermission = null;
+		accountPermission = baseRepository.getAccountsRepository().loadGroupPermissionByAccounts(accountID);
+
+		if (accountPermission.size() == 0) {
+			logger.info("[Invalid AccountID [" + accountID + "]");
+			throw new TransactionException(String.valueOf(Status.INVALID_ACCOUNT));
+		}
+		return accountPermission;
+	}
+
+	public List<AccountPermissions> validateAccountPermissionByID(Integer id) throws TransactionException {
+		List<AccountPermissions> accountPermission = null;
+		accountPermission = baseRepository.getAccountsRepository().loadGroupPermissionByID(id);
+
+		if (accountPermission.size() == 0) {
+			logger.info("[Invalid Permission ID [" + id + "]");
+			throw new TransactionException(String.valueOf(Status.INVALID_ACCOUNT));
+		}
+		return accountPermission;
 	}
 
 	public Accounts validateAccount(Integer accountID, Integer groupID) throws TransactionException {
@@ -172,6 +195,11 @@ public class AccountValidation {
 
 	public Integer countTotalRecords() {
 		return baseRepository.getAccountsRepository().countTotalRecords();
+
+	}
+
+	public Integer countTotalAccounts() {
+		return baseRepository.getAccountsRepository().countTotalAccount();
 
 	}
 

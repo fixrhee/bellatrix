@@ -44,7 +44,8 @@ public interface Access {
 
 	@WebMethod(action = "loadAccessType")
 	public LoadAccessTypeResponse loadAccessType(
-			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam) throws Exception;
+			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam, AccessTypeRequest req)
+			throws Exception;
 
 	@WebMethod(action = "updateAccessType")
 	public void updateAccessType(@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,

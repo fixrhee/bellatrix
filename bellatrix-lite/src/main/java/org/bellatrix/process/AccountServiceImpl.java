@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.xml.ws.Holder;
 
 import org.apache.log4j.Logger;
+import org.bellatrix.data.AccountPermissions;
 import org.bellatrix.data.Accounts;
 import org.bellatrix.data.Currencies;
 import org.bellatrix.data.MemberView;
@@ -21,6 +22,8 @@ import org.bellatrix.data.TransferTypeFields;
 import org.bellatrix.data.Transfers;
 import org.bellatrix.data.WebServices;
 import org.bellatrix.services.Header;
+import org.bellatrix.services.LoadAccountPermissionsRequest;
+import org.bellatrix.services.LoadAccountPermissionsResponse;
 import org.bellatrix.services.Account;
 import org.bellatrix.services.AccountsPermissionRequest;
 import org.bellatrix.services.BalanceInquiryRequest;
@@ -67,6 +70,16 @@ public class AccountServiceImpl implements Account {
 					accountResponse.setStatus(StatusBuilder.getStatus(Status.ACCOUNT_NOT_FOUND));
 					return accountResponse;
 				}
+				Currencies currency = baseRepository.getCurrenciesRepository()
+						.loadCurrencyByID(accounts.getCurrency().getId());
+				accounts.setFormattedCreditLimit(Utils.formatAmount(accounts.getCreditLimit(), currency.getGrouping(),
+						currency.getDecimal(), currency.getFormat(), currency.getPrefix(), currency.getTrailer()));
+				accounts.setFormattedLowerCreditLimit(Utils.formatAmount(accounts.getLowerCreditLimit(),
+						currency.getGrouping(), currency.getDecimal(), currency.getFormat(), currency.getPrefix(),
+						currency.getTrailer()));
+				accounts.setFormattedUpperCreditLimit(Utils.formatAmount(accounts.getUpperCreditLimit(),
+						currency.getGrouping(), currency.getDecimal(), currency.getFormat(), currency.getPrefix(),
+						currency.getTrailer()));
 				accountResponse.setAccount(accounts);
 			} else {
 				Accounts accounts = accountValidation.validateAccount(req.getId());
@@ -76,6 +89,7 @@ public class AccountServiceImpl implements Account {
 				}
 				accountResponse.setAccount(accounts);
 			}
+
 			accountResponse.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
 			return accountResponse;
 		} catch (TransactionException e) {
@@ -178,6 +192,8 @@ public class AccountServiceImpl implements Account {
 				return history;
 			}
 
+			Currencies currency = baseRepository.getCurrenciesRepository().loadCurrencyByAccountID(req.getAccountID());
+
 			Integer totalDisplayRecords = baseRepository.getAccountsRepository()
 					.countTotalTransaction(fromMember.getId(), req.getAccountID(), fromDate, toDate);
 			Integer totalRecords = baseRepository.getAccountsRepository().countTotalRecords();
@@ -210,15 +226,17 @@ public class AccountServiceImpl implements Account {
 				toMemberTrf.setName(trf.get(i).getToName());
 				toMemberTrf.setUsername(trf.get(i).getToUsername());
 
-				if (trf.get(i).getParentID() == null) {
-					TransferTypeFields typeField = new TransferTypeFields();
-					typeField.setFromAccounts(trf.get(i).getFromAccountID());
-					typeField.setToAccounts(trf.get(i).getToAccountID());
-					typeField.setName(trf.get(i).getName());
-					trfHistory.setTransferType(typeField);
-				}
+				// if (trf.get(i).getParentID() == null) {
+				TransferTypeFields typeField = new TransferTypeFields();
+				typeField.setFromAccounts(trf.get(i).getFromAccountID());
+				typeField.setToAccounts(trf.get(i).getToAccountID());
+				typeField.setName(trf.get(i).getName());
+				trfHistory.setTransferType(typeField);
+				// }
 
 				trfHistory.setAmount(trf.get(i).getAmount());
+				trfHistory.setFormattedAmount(Utils.formatAmount(trf.get(i).getAmount(), currency.getGrouping(),
+						currency.getDecimal(), currency.getFormat(), currency.getPrefix(), currency.getTrailer()));
 				trfHistory.setChargedBack(trf.get(i).isChargedBack());
 				trfHistory.setDescription(trf.get(i).getDescription());
 				trfHistory.setFromMember(fromMemberTrf);
@@ -254,7 +272,7 @@ public class AccountServiceImpl implements Account {
 			List<Accounts> accounts = baseRepository.getAccountsRepository().loadAccounts(req.getCurrentPage(),
 					req.getPageSize());
 
-			Integer totalRecords = accountValidation.countTotalRecords();
+			Integer totalRecords = accountValidation.countTotalAccounts();
 			accountResponse.setAccount(accounts);
 			accountResponse.setTotalRecords(totalRecords);
 			accountResponse.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
@@ -285,8 +303,8 @@ public class AccountServiceImpl implements Account {
 		try {
 			webserviceValidation.validateWebservice(headerParam.value.getToken());
 			accountValidation.validateAccount(req.getId());
-			baseRepository.getAccountsRepository().updateAccount(req.getId(), req.getName(), req.getDescription(),
-					req.isSystemAccount());
+			baseRepository.getAccountsRepository().updateAccount(req.getId(), req.getCurrencyID(), req.getName(),
+					req.getDescription(), req.isSystemAccount());
 		} catch (TransactionException e) {
 			throw new TransactionException(e.getMessage());
 		}
@@ -310,8 +328,7 @@ public class AccountServiceImpl implements Account {
 			throws TransactionException {
 		try {
 			webserviceValidation.validateWebservice(headerParam.value.getToken());
-			accountValidation.validateAccount(req.getAccountID());
-			baseRepository.getAccountsRepository().updateAccountPermission(req.getAccountID(), req.getCreditLimit(),
+			baseRepository.getAccountsRepository().updateAccountPermission(req.getId(), req.getCreditLimit(),
 					req.getUpperCreditLimit(), req.getLowerCreditLimit());
 		} catch (TransactionException e) {
 			throw new TransactionException(e.getMessage());
@@ -323,8 +340,12 @@ public class AccountServiceImpl implements Account {
 			throws TransactionException {
 		try {
 			webserviceValidation.validateWebservice(headerParam.value.getToken());
-			accountValidation.validateAccount(req.getAccountID());
-			baseRepository.getAccountsRepository().deleteAccountPermission(req.getAccountID(), req.getGroupID());
+			if (req.getId() != null) {
+				baseRepository.getAccountsRepository().deleteAccountPermission(req.getId());
+			} else {
+				accountValidation.validateAccount(req.getAccountID());
+				baseRepository.getAccountsRepository().deleteAccountPermission(req.getAccountID(), req.getGroupID());
+			}
 		} catch (TransactionException e) {
 			throw new TransactionException(e.getMessage());
 		}
@@ -338,6 +359,9 @@ public class AccountServiceImpl implements Account {
 			if (req.getId() == null) {
 				List<Currencies> lc = baseRepository.getCurrenciesRepository().loadAllCurrencies();
 				cr.setCurrency(lc);
+				if (lc.size() == 0) {
+					cr.setStatus(StatusBuilder.getStatus(Status.INVALID_CURRENCY));
+				}
 			} else {
 				List<Currencies> listCurrencies = new LinkedList<Currencies>();
 				Currencies c = baseRepository.getCurrenciesRepository().loadCurrencyByID(req.getId());
@@ -362,6 +386,46 @@ public class AccountServiceImpl implements Account {
 	public void updateCurrency(Holder<Header> headerParam, CurrencyRequest req) throws TransactionException {
 		webserviceValidation.validateWebservice(headerParam.value.getToken());
 		currenciesValidation.updateCurrency(req);
+	}
+
+	@Override
+	public LoadAccountPermissionsResponse loadAccountPermissionsByAccount(Holder<Header> headerParam,
+			LoadAccountPermissionsRequest req) {
+		LoadAccountPermissionsResponse loadAccountPermissionsResponse = new LoadAccountPermissionsResponse();
+		try {
+			webserviceValidation.validateWebservice(headerParam.value.getToken());
+			List<AccountPermissions> accounts = accountValidation.validateAccountPermission(req.getAccountID());
+			if (accounts == null) {
+				loadAccountPermissionsResponse.setStatus(StatusBuilder.getStatus(Status.ACCOUNT_NOT_FOUND));
+				return loadAccountPermissionsResponse;
+			}
+			loadAccountPermissionsResponse.setAccountPermission(accounts);
+			loadAccountPermissionsResponse.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
+			return loadAccountPermissionsResponse;
+		} catch (TransactionException e) {
+			loadAccountPermissionsResponse.setStatus(StatusBuilder.getStatus(e.getMessage()));
+			return loadAccountPermissionsResponse;
+		}
+	}
+
+	@Override
+	public LoadAccountPermissionsResponse loadAccountPermissionsByID(Holder<Header> headerParam,
+			LoadAccountPermissionsRequest req) {
+		LoadAccountPermissionsResponse loadAccountPermissionsResponse = new LoadAccountPermissionsResponse();
+		try {
+			webserviceValidation.validateWebservice(headerParam.value.getToken());
+			List<AccountPermissions> accounts = accountValidation.validateAccountPermissionByID(req.getId());
+			if (accounts == null) {
+				loadAccountPermissionsResponse.setStatus(StatusBuilder.getStatus(Status.ACCOUNT_NOT_FOUND));
+				return loadAccountPermissionsResponse;
+			}
+			loadAccountPermissionsResponse.setAccountPermission(accounts);
+			loadAccountPermissionsResponse.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
+			return loadAccountPermissionsResponse;
+		} catch (TransactionException e) {
+			loadAccountPermissionsResponse.setStatus(StatusBuilder.getStatus(e.getMessage()));
+			return loadAccountPermissionsResponse;
+		}
 	}
 
 }

@@ -14,8 +14,9 @@ public class FeeRequest {
 	private String description;
 	private boolean enabled;
 	private boolean deductAmount;
-	private boolean fromAllGroup;
-	private boolean toAllGroup;
+	private boolean fromAllMember;
+	private boolean toAllMember;
+	private boolean priority;
 	private BigDecimal fixedAmount;
 	private double percentage;
 	private BigDecimal initialRangeAmount;
@@ -95,22 +96,6 @@ public class FeeRequest {
 		this.deductAmount = deductAmount;
 	}
 
-	public boolean isFromAllGroup() {
-		return fromAllGroup;
-	}
-
-	public void setFromAllGroup(boolean fromAllGroup) {
-		this.fromAllGroup = fromAllGroup;
-	}
-
-	public boolean isToAllGroup() {
-		return toAllGroup;
-	}
-
-	public void setToAllGroup(boolean toAllGroup) {
-		this.toAllGroup = toAllGroup;
-	}
-
 	public BigDecimal getFixedAmount() {
 		return fixedAmount;
 	}
@@ -157,6 +142,30 @@ public class FeeRequest {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+
+	public boolean isPriority() {
+		return priority;
+	}
+
+	public void setPriority(boolean priority) {
+		this.priority = priority;
+	}
+
+	public boolean isFromAllMember() {
+		return fromAllMember;
+	}
+
+	public void setFromAllMember(boolean fromAllMember) {
+		this.fromAllMember = fromAllMember;
+	}
+
+	public boolean isToAllMember() {
+		return toAllMember;
+	}
+
+	public void setToAllMember(boolean toAllMember) {
+		this.toAllMember = toAllMember;
 	}
 
 }

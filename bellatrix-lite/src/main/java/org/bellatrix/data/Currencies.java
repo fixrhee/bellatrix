@@ -14,8 +14,8 @@ public class Currencies implements Serializable {
 	private String prefix;
 	private String trailer;
 	private String format;
-	private char grouping;
-	private char decimal;
+	private String grouping;
+	private String decimal;
 
 	public Integer getId() {
 		return id;
@@ -57,28 +57,28 @@ public class Currencies implements Serializable {
 		this.format = format;
 	}
 
-	public char getGrouping() {
-		return grouping;
-	}
-
-	public void setGrouping(char grouping) {
-		this.grouping = grouping;
-	}
-
-	public char getDecimal() {
-		return decimal;
-	}
-
-	public void setDecimal(char decimal) {
-		this.decimal = decimal;
-	}
-
 	public String getTrailer() {
 		return trailer;
 	}
 
 	public void setTrailer(String trailer) {
 		this.trailer = trailer;
+	}
+
+	public String getGrouping() {
+		return grouping;
+	}
+
+	public void setGrouping(String grouping) {
+		this.grouping = grouping;
+	}
+
+	public String getDecimal() {
+		return decimal;
+	}
+
+	public void setDecimal(String decimal) {
+		this.decimal = decimal;
 	}
 
 }

@@ -535,9 +535,24 @@ public class MemberRepository {
 	public Boolean memberKYCStatus(Integer memberID) {
 		try {
 			Boolean approved = this.jdbcTemplate.queryForObject(
-					"select  approved from member_kyc_request where member_id = ?", new Object[] { memberID },
+					"select  approved from member_kyc_request where member_id = ? order by id desc limit 1", new Object[] { memberID },
 					Boolean.class);
 			if (approved == true) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (EmptyResultDataAccessException e) {
+			return false;
+		}
+	}
+	
+	public Boolean memberKYCIsRequested(Integer memberID) {
+		try {
+			Integer id = this.jdbcTemplate.queryForObject(
+					"select  id from member_kyc_request where member_id = ? and status = 'REQUESTED' order by id desc limit 1", new Object[] { memberID },
+					Integer.class);
+			if (id != null) {
 				return true;
 			} else {
 				return false;

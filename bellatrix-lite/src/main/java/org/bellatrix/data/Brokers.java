@@ -18,6 +18,7 @@ public class Brokers implements Serializable {
 	private String name;
 	private String description;
 	private boolean enabled;
+	private boolean deductAllFee;
 	private BigDecimal fixedAmount;
 	private BigDecimal percentageValue;
 	private BigDecimal feeAmount;
@@ -158,6 +159,14 @@ public class Brokers implements Serializable {
 
 	public void setRequestTransactionAmount(String requestTransactionAmount) {
 		this.requestTransactionAmount = requestTransactionAmount;
+	}
+
+	public boolean isDeductAllFee() {
+		return deductAllFee;
+	}
+
+	public void setDeductAllFee(boolean deductAllFee) {
+		this.deductAllFee = deductAllFee;
 	}
 
 }

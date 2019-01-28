@@ -129,9 +129,26 @@ public class MemberServiceImpl implements Member {
 				throw new TransactionException(String.valueOf(Status.INVALID_GROUP));
 			}
 
-			if (req.getExternalMemberFields() != null && req.getExternalMemberFields().getParentID() != 0) {
-				Members parent = baseRepository.getMembersRepository().findOneMembers("id",
-						req.getExternalMemberFields().getParentID());
+			if (req.getExternalMemberFields() != null) {
+				Members parent = null;
+				if (req.getExternalMemberFields().getParentID() != null) {
+					parent = baseRepository.getMembersRepository().findOneMembers("id",
+							req.getExternalMemberFields().getParentID());
+					if (parent == null) {
+						throw new TransactionException(String.valueOf(Status.PARENT_ID_NOT_FOUND));
+					}
+					req.getExternalMemberFields().setUsername(parent.getUsername());
+				} else if (req.getExternalMemberFields().getUsername() != null) {
+					parent = baseRepository.getMembersRepository().findOneMembers("username",
+							req.getExternalMemberFields().getUsername());
+					if (parent == null) {
+						throw new TransactionException(String.valueOf(Status.PARENT_ID_NOT_FOUND));
+					}
+					req.getExternalMemberFields().setParentID(parent.getId());
+				} else {
+					parent = null;
+				}
+
 				if (parent == null) {
 					throw new TransactionException(String.valueOf(Status.PARENT_ID_NOT_FOUND));
 				}
@@ -348,6 +365,11 @@ public class MemberServiceImpl implements Member {
 			Boolean statusKYC = baseRepository.getMembersRepository().memberKYCStatus(fromMember.getId());
 			if (statusKYC == true) {
 				throw new TransactionException(String.valueOf(Status.MEMBER_ALREADY_REGISTERED));
+			}
+
+			Boolean isRequested = baseRepository.getMembersRepository().memberKYCIsRequested(fromMember.getId());
+			if (isRequested) {
+				throw new TransactionException(String.valueOf(Status.REQUEST_RECEIVED));
 			}
 
 			if (statusKYC == null || statusKYC == false) {

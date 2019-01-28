@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class AccountsPermissionRequest {
 
+	private Integer id;
 	private Integer accountID;
 	private Integer groupID;
 	private BigDecimal creditLimit;
@@ -48,6 +49,14 @@ public class AccountsPermissionRequest {
 
 	public void setLowerCreditLimit(BigDecimal lowerCreditLimit) {
 		this.lowerCreditLimit = lowerCreditLimit;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 }

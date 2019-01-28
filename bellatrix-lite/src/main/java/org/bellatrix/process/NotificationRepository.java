@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 import org.bellatrix.data.Notifications;
+import org.bellatrix.services.NotificationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,11 +47,8 @@ public class NotificationRepository {
 						public Notifications mapRow(ResultSet rs, int rowNum) throws SQLException {
 							Notifications notif = new Notifications();
 							notif.setId(rs.getInt("id"));
-							notif.setTransferTypeID(rs.getInt("transfer_type_id"));
 							notif.setName(rs.getString("name"));
-							notif.setNotificationType(rs.getString("notification_type"));
 							notif.setModuleURL(rs.getString("module_url"));
-							notif.setEnabled(rs.getBoolean("enabled"));
 							return notif;
 						}
 					});
@@ -58,6 +56,56 @@ public class NotificationRepository {
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
+	}
+
+	public List<Notifications> loadAllNotification(Integer currentPage, Integer pageSize) {
+		try {
+			List<Notifications> notif = this.jdbcTemplate.query("select * from notifications order by id LIMIT ?,?",
+					new Object[] { currentPage, pageSize }, new RowMapper<Notifications>() {
+						public Notifications mapRow(ResultSet rs, int rowNum) throws SQLException {
+							Notifications notif = new Notifications();
+							notif.setId(rs.getInt("id"));
+							notif.setName(rs.getString("name"));
+							notif.setModuleURL(rs.getString("module_url"));
+							return notif;
+						}
+					});
+			return notif;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+
+	public Notifications loadNotificationByID(Integer id) {
+		try {
+			Notifications notif = this.jdbcTemplate.queryForObject("select * from notifications where id = ?",
+					new Object[] { id }, new RowMapper<Notifications>() {
+						public Notifications mapRow(ResultSet rs, int rowNum) throws SQLException {
+							Notifications notif = new Notifications();
+							notif.setId(rs.getInt("id"));
+							notif.setName(rs.getString("name"));
+							notif.setModuleURL(rs.getString("module_url"));
+							return notif;
+						}
+					});
+			return notif;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+
+	public void createNotification(NotificationRequest req) {
+		jdbcTemplate.update("insert into notifications (name, module_url) values (?,?)", req.getName(),
+				req.getModuleURL());
+	}
+
+	public void editNotification(NotificationRequest req) {
+		jdbcTemplate.update("update notifications set name = ?, module_url = ? where id = ?", req.getName(),
+				req.getModuleURL(), req.getId());
+	}
+
+	public void deleteNotification(NotificationRequest req) {
+		jdbcTemplate.update("delete from notifications where id = ?", req.getId());
 	}
 
 	@Autowired

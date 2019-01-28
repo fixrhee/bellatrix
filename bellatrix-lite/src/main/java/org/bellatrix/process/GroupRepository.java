@@ -24,8 +24,8 @@ public class GroupRepository {
 
 	@Transactional
 	public void createGroups(Groups groups) {
-		jdbcTemplate.update("insert into groups (name, description, pin_length, max_pin_tries) values (?, ?, ?, ?);",
-				groups.getName(), groups.getDescription(), groups.getPinLength(), groups.getMaxPinTries());
+		jdbcTemplate.update("insert into groups (name, description, pin_length, max_pin_tries, notification_id) values (?, ?, ?, ?, ?);",
+				groups.getName(), groups.getDescription(), groups.getPinLength(), groups.getMaxPinTries(), groups.getNotificationID());
 	}
 
 	public void deleteGroups(String id) {

@@ -13,6 +13,7 @@ public class BrokerRequest {
 	private String name;
 	private String description;
 	private boolean enabled;
+	private boolean deductAllFee;
 	private BigDecimal fixedAmount;
 	private BigDecimal percentage;
 
@@ -102,6 +103,14 @@ public class BrokerRequest {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public boolean isDeductAllFee() {
+		return deductAllFee;
+	}
+
+	public void setDeductAllFee(boolean deductAllFee) {
+		this.deductAllFee = deductAllFee;
 	}
 
 }

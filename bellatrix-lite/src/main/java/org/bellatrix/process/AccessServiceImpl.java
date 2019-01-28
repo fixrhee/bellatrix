@@ -57,7 +57,13 @@ public class AccessServiceImpl implements Access {
 			webserviceValidation.validateWebservice(headerParam.value.getToken());
 			Members members = memberValidation.validateMember(req.getUsername(), true);
 			req.setMemberID(members.getId());
-			accessValidation.createCredentialValidation(req);
+			boolean status = baseRepository.getAccessesRepository().validateCreateCredential(req.getAccessTypeID(),
+					members.getId());
+			if (status == true) {
+				accessValidation.createCredentialValidation(req);
+			} else {
+				throw new TransactionException(String.valueOf(Status.INVALID_PARAMETER));
+			}
 		} catch (Exception e) {
 			throw new TransactionException(String.valueOf(Status.INVALID_PARAMETER));
 		}
@@ -192,10 +198,15 @@ public class AccessServiceImpl implements Access {
 		validate.setCredential(req.getOldCredential());
 		validate.setUsername(req.getUsername());
 		Accesses access = accessValidation.validateCredential(validate);
-		if (access == null) {
-			throw new TransactionException(String.valueOf(Status.INVALID));
+		if (access != null) {
+			if (!access.getPin().equalsIgnoreCase(Utils.getMD5Hash(req.getOldCredential()))) {
+				throw new TransactionException(String.valueOf(Status.INVALID));
+			} else {
+				accessValidation.changeCredential(member.getId(), req.getAccessTypeID(), req.getNewCredential());
+			}
+		} else {
+			throw new TransactionException(String.valueOf(Status.INVALID_PARAMETER));
 		}
-		accessValidation.changeCredential(member.getId(), req.getAccessTypeID(), req.getNewCredential());
 	}
 
 	@Override
@@ -215,10 +226,15 @@ public class AccessServiceImpl implements Access {
 	}
 
 	@Override
-	public LoadAccessTypeResponse loadAccessType(Holder<Header> headerParam) throws Exception {
+	public LoadAccessTypeResponse loadAccessType(Holder<Header> headerParam, AccessTypeRequest req) throws Exception {
 		LoadAccessTypeResponse latr = new LoadAccessTypeResponse();
 		webserviceValidation.validateWebservice(headerParam.value.getToken());
-		List<AccessType> accessType = accessValidation.getAllCredentialType();
+		List<AccessType> accessType = null;
+		if (req.getId() == null) {
+			accessType = accessValidation.getAllCredentialType();
+		} else {
+			accessType = accessValidation.getCredentialTypeByID(req);
+		}
 		latr.setAccessType(accessType);
 		latr.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
 		return latr;

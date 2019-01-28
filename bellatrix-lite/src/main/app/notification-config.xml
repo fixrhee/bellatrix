@@ -52,20 +52,35 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 		<choice doc:name="Choice">
 			<when
 				expression="#[message.inboundProperties.'NOTIFICATION_TYPE' == 'defaultTrxReceipt']">
-				<set-variable value="#[payload.fromMember.email]"
+				<set-variable value="#[payload.fromMember.name]"
+					variableName="from" doc:name="Variable" />
+				<set-variable value="#[payload.toMember.name]"
 					variableName="to" doc:name="Variable" />
-				<parse-template location="DefaultTransactionReceipt.tmp"
-					mimeType="text/html" doc:name="Parse Template" />
+				<!-- <parse-template location="DefaultTransactionReceipt.tmp" mimeType="text/html" 
+					doc:name="Parse Template" /> -->
 				<expression-component doc:name="Expression">
 					<![CDATA[
 					regMap = new java.util.HashMap();
 					regMap['subject']= 'Transaction Receipt';
 					regMap['body']= payload;
 					regMap['to']= flowVars['to'];
-					regMap['from']= 'DOKU';
+					regMap['from']= flowVars['from'];
 					payload = regMap;]]>
 				</expression-component>
-				<logger level="INFO" message="#[payload]" doc:name="Logger" />
+				<vm:outbound-endpoint connector-ref="Notification_VM"
+					exchange-pattern="one-way" path="#[moduleURL]" doc:name="VM" />
+			</when>
+			<when
+				expression="#[message.inboundProperties.'NOTIFICATION_TYPE' == 'resetCredential']">
+				<expression-component doc:name="Expression">
+					<![CDATA[
+					regMap = new java.util.HashMap();
+					regMap['subject']= 'Reset Credential';
+					regMap['body']= payload;
+					payload = regMap;]]>
+				</expression-component>
+				<vm:outbound-endpoint connector-ref="Notification_VM"
+					exchange-pattern="one-way" path="#[moduleURL]" doc:name="VM" />
 			</when>
 			<otherwise>
 				<logger level="INFO"
@@ -74,4 +89,25 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 			</otherwise>
 		</choice>
 	</flow>
+
+	<flow name="log-notification-configFlow">
+		<vm:inbound-endpoint connector-ref="Notification_VM"
+			exchange-pattern="one-way" path="notification.log" doc:name="VM" />
+		<json:object-to-json-transformer />
+		<logger level="INFO" message="[LOG Notification : #[payload]]"
+			doc:name="Logger" />
+	</flow>
+
+	<flow name="KYC-notification-configFlow">
+		<vm:inbound-endpoint connector-ref="KYCNotification_VM"
+			exchange-pattern="one-way" path="kyc.notification" doc:name="VM" />
+		<logger level="INFO" message="[KYC-ACCEPTED]: #[payload]" />
+	</flow>
+
+	<flow name="KYCRejected-notification-configFlow">
+		<vm:inbound-endpoint connector-ref="KYCNotificationReject_VM"
+			exchange-pattern="one-way" path="kyc.notification.reject" doc:name="VM" />
+		<logger level="INFO" message="[KYC-REJECTED]: #[payload]" />
+	</flow>
+
 </mule>

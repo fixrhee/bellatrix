@@ -17,6 +17,7 @@ import org.bellatrix.data.ParentMenuData;
 import org.bellatrix.data.Status;
 import org.bellatrix.data.StatusBuilder;
 import org.bellatrix.data.TransactionException;
+import org.bellatrix.data.WelcomeMenu;
 import org.bellatrix.services.Header;
 import org.bellatrix.services.LoadCategoryMenuRequest;
 import org.bellatrix.services.LoadCategoryMenuResponse;
@@ -91,8 +92,8 @@ public class MenuServiceImpl implements Menu {
 				}
 
 				loadMenuByGroupsResponse.setMainMenu(listMainMenu);
-				loadMenuByGroupsResponse
-						.setWelcomeMenu(baseRepository.getMenusRepository().loadWelcomeMenuLinkByGroup(groups.getId()));
+				loadMenuByGroupsResponse.setWelcomeMenu(
+						baseRepository.getMenusRepository().loadWelcomeMenuLinkByGroup(groups.getId()).getLink());
 				loadMenuByGroupsResponse.setRepsonse(StatusBuilder.getStatus(Status.PROCESSED));
 			}
 
@@ -210,21 +211,21 @@ public class MenuServiceImpl implements Menu {
 		try {
 			webserviceValidation.validateWebservice(headerParam.value.getToken());
 			if (req.getId() != null) {
-				String link = baseRepository.getMenusRepository().loadWelcomeMenuLinkByID(req.getId());
-				List<String> ls = new LinkedList<String>();
+				WelcomeMenu link = baseRepository.getMenusRepository().loadWelcomeMenuLinkByID(req.getId());
+				List<WelcomeMenu> ls = new LinkedList<WelcomeMenu>();
 				ls.add(link);
 				lwmr.setWelcomeLink(ls);
 				lwmr.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
 				return lwmr;
 			} else if (req.getGroupID() != null) {
-				String link = baseRepository.getMenusRepository().loadWelcomeMenuLinkByGroup(req.getGroupID());
-				List<String> ls = new LinkedList<String>();
+				WelcomeMenu link = baseRepository.getMenusRepository().loadWelcomeMenuLinkByGroup(req.getGroupID());
+				List<WelcomeMenu> ls = new LinkedList<WelcomeMenu>();
 				ls.add(link);
 				lwmr.setWelcomeLink(ls);
 				lwmr.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
 				return lwmr;
 			} else {
-				List<String> link = baseRepository.getMenusRepository().loadWelcomeMenuLink();
+				List<WelcomeMenu> link = baseRepository.getMenusRepository().loadWelcomeMenuLink();
 				lwmr.setWelcomeLink(link);
 				lwmr.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
 				return lwmr;

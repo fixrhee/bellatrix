@@ -16,10 +16,14 @@ public class Accounts implements Serializable {
 	private String formattedCreatedDate;
 	private String name;
 	private String description;
+	private Groups group;
 	private boolean systemAccount;
 	private BigDecimal creditLimit;
 	private BigDecimal upperCreditLimit;
 	private BigDecimal lowerCreditLimit;
+	private String formattedCreditLimit;
+	private String formattedUpperCreditLimit;
+	private String formattedLowerCreditLimit;
 
 	public String getName() {
 		return name;
@@ -99,6 +103,38 @@ public class Accounts implements Serializable {
 
 	public void setCurrency(Currencies currency) {
 		this.currency = currency;
+	}
+
+	public Groups getGroup() {
+		return group;
+	}
+
+	public void setGroup(Groups group) {
+		this.group = group;
+	}
+
+	public String getFormattedCreditLimit() {
+		return formattedCreditLimit;
+	}
+
+	public void setFormattedCreditLimit(String formattedCreditLimit) {
+		this.formattedCreditLimit = formattedCreditLimit;
+	}
+
+	public String getFormattedUpperCreditLimit() {
+		return formattedUpperCreditLimit;
+	}
+
+	public void setFormattedUpperCreditLimit(String formattedUpperCreditLimit) {
+		this.formattedUpperCreditLimit = formattedUpperCreditLimit;
+	}
+
+	public String getFormattedLowerCreditLimit() {
+		return formattedLowerCreditLimit;
+	}
+
+	public void setFormattedLowerCreditLimit(String formattedLowerCreditLimit) {
+		this.formattedLowerCreditLimit = formattedLowerCreditLimit;
 	}
 
 }

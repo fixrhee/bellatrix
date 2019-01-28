@@ -20,6 +20,16 @@ public interface Account {
 			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
 			@WebParam LoadAccountsByGroupsRequest req);
 
+	@WebMethod(action = "loadAccountPermissionsByAccount")
+	public LoadAccountPermissionsResponse loadAccountPermissionsByAccount(
+			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
+			@WebParam LoadAccountPermissionsRequest req);
+
+	@WebMethod(action = "loadAccountPermissionsByID")
+	public LoadAccountPermissionsResponse loadAccountPermissionsByID(
+			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
+			@WebParam LoadAccountPermissionsRequest req);
+
 	@WebMethod(action = "loadAccountsByID")
 	public LoadAccountsByIDResponse loadAccountsByID(
 			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,

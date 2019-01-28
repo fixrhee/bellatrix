@@ -1,7 +1,6 @@
 package org.bellatrix.data;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class WebServices implements Serializable {
 
@@ -10,7 +9,9 @@ public class WebServices implements Serializable {
 	 */
 	private static final long serialVersionUID = -8466301975248420787L;
 	private Integer id;
+	private Integer permissionID;
 	private String username;
+	private Groups group;
 	private String name;
 	private String password;
 	private String hash;
@@ -71,6 +72,22 @@ public class WebServices implements Serializable {
 
 	public void setHash(String hash) {
 		this.hash = hash;
+	}
+
+	public Groups getGroup() {
+		return group;
+	}
+
+	public void setGroup(Groups group) {
+		this.group = group;
+	}
+
+	public Integer getPermissionID() {
+		return permissionID;
+	}
+
+	public void setPermissionID(Integer permissionID) {
+		this.permissionID = permissionID;
 	}
 
 }

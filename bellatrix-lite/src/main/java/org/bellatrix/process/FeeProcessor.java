@@ -74,19 +74,19 @@ public class FeeProcessor {
 				}
 
 				/*
-				 * Fee Group Validation Parameter : feeID, groupID, destination (true for
-				 * source, false for destination)
+				 * Fee Member Validation Parameter : feeID, memberID, destination (true for
+				 * source member, false for destination member)
 				 */
-				if (!fees.get(i).isFromAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), fromMember.getGroupID(), true)) {
-					logger.info("[Source Group ID [" + fromMember.getGroupID() + "] is not registered for FeeID ["
+				if (!fees.get(i).isFromAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), fromMember.getId(), true)) {
+					logger.info("[Source Member ID [" + fromMember.getId() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;
 				}
 
-				if (!fees.get(i).isToAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), toMember.getGroupID(), false)) {
-					logger.info("[Destination Group ID " + toMember.getGroupID() + "] is not registered for FeeID ["
+				if (!fees.get(i).isToAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), toMember.getId(), false)) {
+					logger.info("[Destination Member ID " + toMember.getId() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;
 				}
@@ -454,16 +454,16 @@ public class FeeProcessor {
 				 * Fee Group Validation Parameter : feeID, groupID, destination (true for
 				 * source, false for destination)
 				 */
-				if (!fees.get(i).isFromAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), fromMember.getGroupID(), true)) {
-					logger.info("[Source Group ID [" + fromMember.getGroupID() + "] is not registered for FeeID ["
+				if (!fees.get(i).isFromAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), fromMember.getId(), true)) {
+					logger.info("[Source Member ID [" + fromMember.getId() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;
 				}
 
-				if (!fees.get(i).isToAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), toMember.getGroupID(), false)) {
-					logger.info("[Destination Group ID " + toMember.getGroupID() + "] is not registered for FeeID ["
+				if (!fees.get(i).isToAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), toMember.getId(), false)) {
+					logger.info("[Destination Member ID " + toMember.getId() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;
 				}
@@ -824,15 +824,15 @@ public class FeeProcessor {
 				 * Fee Group Validation Parameter : feeID, groupID, destination (true for
 				 * source, false for destination)
 				 */
-				if (!fees.get(i).isFromAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), fromMember.getGroupID(), true)) {
+				if (!fees.get(i).isFromAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), fromMember.getGroupID(), true)) {
 					logger.info("[Source Group ID [" + fromMember.getGroupID() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;
 				}
 
-				if (!fees.get(i).isToAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), toMember.getGroupID(), false)) {
+				if (!fees.get(i).isToAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), toMember.getGroupID(), false)) {
 					logger.info("[Destination Group ID " + toMember.getGroupID() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;
@@ -1050,15 +1050,15 @@ public class FeeProcessor {
 				 * Fee Group Validation Parameter : feeID, groupID, destination (true for
 				 * source, false for destination)
 				 */
-				if (!fees.get(i).isFromAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), fromMember.getGroupID(), true)) {
+				if (!fees.get(i).isFromAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), fromMember.getGroupID(), true)) {
 					logger.info("[Source Group ID [" + fromMember.getGroupID() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;
 				}
 
-				if (!fees.get(i).isToAllGroup() && !baseRepository.getTransferTypesRepository()
-						.validateFeeByGroup(fees.get(i).getId(), toMember.getGroupID(), false)) {
+				if (!fees.get(i).isToAllMember() && !baseRepository.getTransferTypesRepository()
+						.validateFeeByMember(fees.get(i).getId(), toMember.getGroupID(), false)) {
 					logger.info("[Destination Group ID " + toMember.getGroupID() + "] is not registered for FeeID ["
 							+ fees.get(i).getId() + "]]");
 					continue;

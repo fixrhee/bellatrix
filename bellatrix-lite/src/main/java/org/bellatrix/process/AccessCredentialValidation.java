@@ -71,6 +71,10 @@ public class AccessCredentialValidation {
 		return baseRepository.getAccessesRepository().getAllCredentialType();
 	}
 
+	public List<AccessType> getCredentialTypeByID(AccessTypeRequest req) {
+		return baseRepository.getAccessesRepository().getCredentialTypeByID(req.getId());
+	}
+
 	public void updateCredentialType(AccessTypeRequest req) {
 		baseRepository.getAccessesRepository().updateCredentialType(req.getId(), req.getName(), req.getInternalName(),
 				req.getDescription());

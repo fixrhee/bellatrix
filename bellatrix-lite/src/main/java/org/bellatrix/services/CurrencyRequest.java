@@ -8,7 +8,8 @@ public class CurrencyRequest {
 	private String prefix;
 	private String trailer;
 	private String format;
-	private char groupingSeparator;
+	private String groupingSeparator;
+	private String decimalSeparator;
 
 	public Integer getId() {
 		return id;
@@ -58,22 +59,20 @@ public class CurrencyRequest {
 		this.format = format;
 	}
 
-	public char getGroupingSeparator() {
+	public String getGroupingSeparator() {
 		return groupingSeparator;
 	}
 
-	public void setGroupingSeparator(char groupingSeparator) {
+	public void setGroupingSeparator(String groupingSeparator) {
 		this.groupingSeparator = groupingSeparator;
 	}
 
-	public char getDecimalSeparator() {
+	public String getDecimalSeparator() {
 		return decimalSeparator;
 	}
 
-	public void setDecimalSeparator(char decimalSeparator) {
+	public void setDecimalSeparator(String decimalSeparator) {
 		this.decimalSeparator = decimalSeparator;
 	}
-
-	private char decimalSeparator;
 
 }

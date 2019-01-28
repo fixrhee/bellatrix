@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.bellatrix.data.Accounts;
 import org.bellatrix.data.BrokeringResult;
+import org.bellatrix.data.Currencies;
 import org.bellatrix.data.FeeResult;
 import org.bellatrix.data.Fees;
 import org.bellatrix.data.Members;
@@ -137,6 +138,8 @@ public class TransferValidation {
 		BigDecimal otpThreshold = transferType.getOtpThreshold();
 		logger.info("[Transaction Amount : " + feeResult.getFinalAmount() + "/ OTP Threshold : " + otpThreshold + "]");
 
+		Currencies currency = baseRepository.getCurrenciesRepository().loadCurrencyByAccountID(fromAccount.getId());
+
 		InquiryResponse ir = new InquiryResponse();
 		TransferTypeFields tfield = new TransferTypeFields();
 		tfield.setFromAccounts(fromAccount.getId());
@@ -145,8 +148,17 @@ public class TransferValidation {
 		tfield.setId(transferType.getId());
 
 		ir.setFinalAmount(feeResult.getFinalAmount());
+		ir.setFormattedFinalAmount(Utils.formatAmount(feeResult.getFinalAmount(), currency.getGrouping(),
+				currency.getDecimal(), currency.getFormat(), currency.getPrefix(), currency.getTrailer()));
+
 		ir.setTotalFees(feeResult.getTotalFees());
+		ir.setFormattedTotalFees(Utils.formatAmount(feeResult.getTotalFees(), currency.getGrouping(),
+				currency.getDecimal(), currency.getFormat(), currency.getPrefix(), currency.getTrailer()));
+
 		ir.setTransactionAmount(feeResult.getTransactionAmount());
+		ir.setFormattedTransactionAmount(Utils.formatAmount(feeResult.getTransactionAmount(), currency.getGrouping(),
+				currency.getDecimal(), currency.getFormat(), currency.getPrefix(), currency.getTrailer()));
+
 		ir.setFromMember(fromMember);
 		ir.setToMember(toMember);
 		ir.setTransferType(tfield);

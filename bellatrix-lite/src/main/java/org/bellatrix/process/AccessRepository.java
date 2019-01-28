@@ -35,6 +35,17 @@ public class AccessRepository {
 				req.getCredential());
 	}
 
+	public boolean validateCreateCredential(Integer accessTypeID, Integer memberID) {
+		try {
+			this.jdbcTemplate.queryForObject(
+					"select id from access where member_id = ? and access_type_id = ? order by id desc limit 1; ",
+					Integer.class, memberID, accessTypeID);
+			return false;
+		} catch (EmptyResultDataAccessException e) {
+			return true;
+		}
+	}
+
 	public Accesses validateCredential(ValidateCredentialRequest req) {
 		try {
 			Accesses access = this.jdbcTemplate.queryForObject(
@@ -185,6 +196,26 @@ public class AccessRepository {
 							accessType.setId(rs.getInt("id"));
 							accessType.setName(rs.getString("name"));
 							accessType.setDescription(rs.getString("description"));
+							accessType.setInternalName(rs.getString("internal_name"));
+							return accessType;
+						}
+					});
+			return accessType;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+
+	public List<AccessType> getCredentialTypeByID(Integer id) {
+		try {
+			List<AccessType> accessType = this.jdbcTemplate.query("select * from access_types where id = ?",
+					new Object[] { id }, new RowMapper<AccessType>() {
+						public AccessType mapRow(ResultSet rs, int rowNum) throws SQLException {
+							AccessType accessType = new AccessType();
+							accessType.setId(rs.getInt("id"));
+							accessType.setName(rs.getString("name"));
+							accessType.setDescription(rs.getString("description"));
+							accessType.setInternalName(rs.getString("internal_name"));
 							return accessType;
 						}
 					});
@@ -195,8 +226,8 @@ public class AccessRepository {
 	}
 
 	public void updateCredentialType(Integer id, String name, String internalName, String description) {
-		this.jdbcTemplate.update("update access_types set name = ?, internal_name = ?, description= ? where id = ?", id,
-				name, internalName, description);
+		this.jdbcTemplate.update("update access_types set name = ?, internal_name = ?, description= ? where id = ?",
+				name, internalName, description, id);
 	}
 
 	public void createCredentialType(String name, String internalName, String description) {

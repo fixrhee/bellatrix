@@ -5,6 +5,7 @@ public class AccessType {
 	private Integer id;
 	private String name;
 	private String description;
+	private String internalName;
 
 	public Integer getId() {
 		return id;
@@ -28,6 +29,14 @@ public class AccessType {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getInternalName() {
+		return internalName;
+	}
+
+	public void setInternalName(String internalName) {
+		this.internalName = internalName;
 	}
 
 }
