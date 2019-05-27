@@ -96,15 +96,15 @@ public class TransferValidation {
 		 */
 		Accounts fromAccount = accountValidation.validateAccount(transferType, fromMember, true);
 		Accounts toAccount = null;
-		if (transferType.getFromAccounts() != transferType.getToAccounts()) {
+		// if (transferType.getFromAccounts() != transferType.getToAccounts()) {
 
-			/*
-			 * Validate ToAccount
-			 */
-			toAccount = accountValidation.validateAccount(transferType, toMember, false);
-		} else {
-			toAccount = fromAccount;
-		}
+		/*
+		 * Validate ToAccount
+		 */
+		toAccount = accountValidation.validateAccount(transferType, toMember, false);
+		// } else {
+		// toAccount = fromAccount;
+		// }
 
 		/*
 		 * Validate Currency
@@ -234,15 +234,15 @@ public class TransferValidation {
 			 */
 			fromAccount = accountValidation.validateAccount(transferType, fromMember, true);
 
-			if (transferType.getFromAccounts() != transferType.getToAccounts()) {
+			// if (transferType.getFromAccounts() != transferType.getToAccounts()) {
 
-				/*
-				 * Validate ToAccount
-				 */
-				toAccount = accountValidation.validateAccount(transferType, toMember, false);
-			} else {
-				toAccount = fromAccount;
-			}
+			/*
+			 * Validate ToAccount
+			 */
+			toAccount = accountValidation.validateAccount(transferType, toMember, false);
+			// } else {
+			// toAccount = fromAccount;
+			// }
 
 			/*
 			 * Validate Currency

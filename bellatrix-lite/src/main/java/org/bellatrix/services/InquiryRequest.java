@@ -45,5 +45,4 @@ public class InquiryRequest implements Serializable {
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
-
 }

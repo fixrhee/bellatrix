@@ -60,6 +60,9 @@ public class MemberRepository {
 							members.setPlaceOfBirth(rs.getString("place_of_birth"));
 							members.setIdCardNo(rs.getString("id_card_no"));
 							members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+							members.setWork(rs.getString("work"));
+							members.setSex(rs.getString("sex"));
+							members.setNationality(rs.getString("nationality"));
 							members.setCreatedDate(rs.getTimestamp("created_date"));
 							return members;
 						}
@@ -88,6 +91,9 @@ public class MemberRepository {
 				members.setPlaceOfBirth(rs.getString("place_of_birth"));
 				members.setIdCardNo(rs.getString("id_card_no"));
 				members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+				members.setWork(rs.getString("work"));
+				members.setSex(rs.getString("sex"));
+				members.setNationality(rs.getString("nationality"));
 				members.setCreatedDate(rs.getTimestamp("created_date"));
 				return members;
 			}
@@ -113,6 +119,9 @@ public class MemberRepository {
 									members.setPlaceOfBirth(rs.getString("place_of_birth"));
 									members.setIdCardNo(rs.getString("id_card_no"));
 									members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+									members.setWork(rs.getString("work"));
+									members.setSex(rs.getString("sex"));
+									members.setNationality(rs.getString("nationality"));
 									members.setCreatedDate(rs.getTimestamp("created_date"));
 									members.setFormattedCreatedDate(Utils.formatDate(rs.getTimestamp("created_date")));
 									return members;
@@ -142,6 +151,9 @@ public class MemberRepository {
 							members.setPlaceOfBirth(rs.getString("place_of_birth"));
 							members.setIdCardNo(rs.getString("id_card_no"));
 							members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+							members.setWork(rs.getString("work"));
+							members.setSex(rs.getString("sex"));
+							members.setNationality(rs.getString("nationality"));
 							members.setCreatedDate(rs.getTimestamp("created_date"));
 							members.setFormattedCreatedDate(Utils.formatDate(rs.getTimestamp("created_date")));
 							return members;
@@ -170,6 +182,9 @@ public class MemberRepository {
 							members.setPlaceOfBirth(rs.getString("place_of_birth"));
 							members.setIdCardNo(rs.getString("id_card_no"));
 							members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+							members.setWork(rs.getString("work"));
+							members.setSex(rs.getString("sex"));
+							members.setNationality(rs.getString("nationality"));
 							members.setCreatedDate(rs.getTimestamp("created_date"));
 							members.setFormattedCreatedDate(Utils.formatDate(rs.getTimestamp("created_date")));
 							return members;
@@ -184,7 +199,7 @@ public class MemberRepository {
 	public List<Members> findMembersByExternalID(LoadMembersByExternalIDRequest req) {
 		try {
 			List<Members> members = this.jdbcTemplate.query(
-					"select a.id, a.group_id, a.username, a.name, a.msisdn, a.email, a.address, a.date_of_birth, a.place_of_birth, a. id_card_no, a.mother_maiden_name, a.created_date, (select  approved from member_kyc_request where member_id = a.id order by id desc limit 1) as kyc_status from members a join external_members b on a.id=b.member_id where b.parent_id=? and b.external_id=? ORDER BY id DESC",
+					"select a.id, a.group_id, a.username, a.name, a.msisdn, a.email, a.address, a.date_of_birth, a.place_of_birth, a. id_card_no, a.mother_maiden_name, a.work, a.sex, a.nationality, a.created_date, (select  approved from member_kyc_request where member_id = a.id order by id desc limit 1) as kyc_status from members a join external_members b on a.id=b.member_id where b.parent_id=? and b.external_id=? ORDER BY id DESC",
 					new Object[] { req.getPartnerID(), req.getExternalID() }, new RowMapper<Members>() {
 						public Members mapRow(ResultSet rs, int rowNum) throws SQLException {
 							Members members = new Members();
@@ -199,6 +214,9 @@ public class MemberRepository {
 							members.setPlaceOfBirth(rs.getString("place_of_birth"));
 							members.setIdCardNo(rs.getString("id_card_no"));
 							members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+							members.setWork(rs.getString("work"));
+							members.setSex(rs.getString("sex"));
+							members.setNationality(rs.getString("nationality"));
 							Boolean kyc = rs.getBoolean("kyc_status");
 							if (kyc) {
 								members.setKycStatus(true);
@@ -219,7 +237,7 @@ public class MemberRepository {
 	public List<Members> findMembersByExternalPartner(LoadMembersByExternalIDRequest req) {
 		try {
 			List<Members> members = this.jdbcTemplate.query(
-					"select a.id, a.group_id, a.username, a.name, a.msisdn, a.email, a.address, a.date_of_birth, a.place_of_birth, a. id_card_no, a.mother_maiden_name, a.created_date, (select  approved from member_kyc_request where member_id = a.id order by id desc limit 1) as kyc_status from members a join external_members b on a.id=b.member_id where b.parent_id=? and a.username=? ORDER BY id DESC",
+					"select a.id, a.group_id, a.username, a.name, a.msisdn, a.email, a.address, a.date_of_birth, a.place_of_birth, a. id_card_no, a.mother_maiden_name, a.work, a.sex, a.nationality, a.created_date, (select  approved from member_kyc_request where member_id = a.id order by id desc limit 1) as kyc_status from members a join external_members b on a.id=b.member_id where b.parent_id=? and a.username=? ORDER BY id DESC",
 					new Object[] { req.getPartnerID(), req.getUsername() }, new RowMapper<Members>() {
 						public Members mapRow(ResultSet rs, int rowNum) throws SQLException {
 							Members members = new Members();
@@ -234,6 +252,9 @@ public class MemberRepository {
 							members.setPlaceOfBirth(rs.getString("place_of_birth"));
 							members.setIdCardNo(rs.getString("id_card_no"));
 							members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+							members.setWork(rs.getString("work"));
+							members.setSex(rs.getString("sex"));
+							members.setNationality(rs.getString("nationality"));
 							Boolean kyc = rs.getBoolean("kyc_status");
 							if (kyc) {
 								members.setKycStatus(true);
@@ -254,7 +275,7 @@ public class MemberRepository {
 	public List<Members> loadMembersByExternalID(LoadMembersByExternalIDRequest req) {
 		try {
 			List<Members> members = this.jdbcTemplate.query(
-					"select a.id, a.group_id, a.username, a.name, a.msisdn, a.email, a.address, a.date_of_birth, a.place_of_birth, a. id_card_no, a.mother_maiden_name, a.created_date, (select  approved from member_kyc_request where member_id = a.id order by id desc limit 1) as kyc_status, b.parent_id, b.external_id, b.description from members a join external_members b on a.id=b.member_id where b.parent_id=? ORDER BY id DESC LIMIT ?,?",
+					"select a.id, a.group_id, a.username, a.name, a.msisdn, a.email, a.address, a.date_of_birth, a.place_of_birth, a. id_card_no, a.mother_maiden_name, a.work, a.sex, a.nationality, a.created_date, (select  approved from member_kyc_request where member_id = a.id order by id desc limit 1) as kyc_status, b.parent_id, b.external_id, b.description from members a join external_members b on a.id=b.member_id where b.parent_id=? ORDER BY id DESC LIMIT ?,?",
 					new Object[] { req.getPartnerID(), req.getCurrentPage(), req.getPageSize() },
 					new RowMapper<Members>() {
 						public Members mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -270,6 +291,9 @@ public class MemberRepository {
 							members.setPlaceOfBirth(rs.getString("place_of_birth"));
 							members.setIdCardNo(rs.getString("id_card_no"));
 							members.setMotherMaidenName(rs.getString("mother_maiden_name"));
+							members.setWork(rs.getString("work"));
+							members.setSex(rs.getString("sex"));
+							members.setNationality(rs.getString("nationality"));
 							Boolean kyc = rs.getBoolean("kyc_status");
 							if (kyc) {
 								members.setKycStatus(true);

@@ -29,6 +29,7 @@ import org.bellatrix.services.GeneratePaymentTicketResponse;
 import org.bellatrix.services.Header;
 import org.bellatrix.services.InquiryRequest;
 import org.bellatrix.services.InquiryResponse;
+import org.bellatrix.services.PaymentInquiryRequest;
 import org.bellatrix.data.PaymentDetails;
 import org.bellatrix.services.PaymentRequest;
 import org.bellatrix.services.PaymentResponse;
@@ -498,5 +499,38 @@ public class TransferServiceImpl implements Transfer {
 	public PendingPaymentResponse loadPendingTransaction(Holder<Header> headerParam, PendingPaymentRequest req) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public InquiryResponse requestPaymentInquiry(Holder<Header> headerParam, PaymentInquiryRequest req) {
+		IMap<String, PaymentDetails> mapLrpcMap = instance.getMap("RequestPaymentMap");
+		PaymentDetails pc = mapLrpcMap.get(req.getRequestID());
+		InquiryResponse ir = new InquiryResponse();
+
+		/*
+		 * Validate Cache by requestID
+		 */
+		if (pc == null) {
+			ir.setStatus(StatusBuilder.getStatus(Status.PAYMENT_CODE_NOT_FOUND));
+			return ir;
+		}
+
+		InquiryRequest inq = new InquiryRequest();
+		inq.setAmount(pc.getFees().getFinalAmount());
+		inq.setFromMember(pc.getFromMember().getUsername());
+		inq.setToMember(pc.getToMember().getUsername());
+		inq.setTransferTypeID(pc.getTransferType().getId());
+
+		try {
+			ir = transfersValidation.validateInquiry(inq, headerParam.value.getToken());
+			ir.setStatus(StatusBuilder.getStatus(Status.PROCESSED));
+		} catch (SocketTimeoutException e) {
+			ir.setStatus(StatusBuilder.getStatus(Status.REQUEST_TIMEOUT));
+			return ir;
+		} catch (TransactionException e) {
+			ir.setStatus(StatusBuilder.getStatus(e.getMessage()));
+			return ir;
+		}
+		return ir;
 	}
 }

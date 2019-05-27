@@ -23,6 +23,9 @@ public class Members implements Serializable {
 	private Date dateOfBirth;
 	private String placeOfBirth;
 	private String motherMaidenName;
+	private String work;
+	private String sex;
+	private String nationality;
 	private Boolean kycStatus;
 	private List<MemberFields> customFields;
 	private List<ExternalMemberFields> externalMembers;
@@ -157,6 +160,30 @@ public class Members implements Serializable {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public String getWork() {
+		return work;
+	}
+
+	public void setWork(String work) {
+		this.work = work;
+	}
+
+	public String getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(String nationality) {
+		this.nationality = nationality;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
 	}
 
 }

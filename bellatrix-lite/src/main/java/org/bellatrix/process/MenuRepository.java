@@ -145,9 +145,8 @@ public class MenuRepository {
 
 	public WelcomeMenu loadWelcomeMenuLinkByGroup(Integer groupID) {
 		try {
-			WelcomeMenu welcomeMenu = this.jdbcTemplate.queryForObject(
-					"select * from menu_welcome where group_id = ?;", new Object[] { groupID },
-					new RowMapper<WelcomeMenu>() {
+			WelcomeMenu welcomeMenu = this.jdbcTemplate.queryForObject("select * from menu_welcome where group_id = ?;",
+					new Object[] { groupID }, new RowMapper<WelcomeMenu>() {
 						public WelcomeMenu mapRow(ResultSet rs, int rowNum) throws SQLException {
 							WelcomeMenu welcomeMenu = new WelcomeMenu();
 							welcomeMenu.setId(rs.getInt("id"));
@@ -163,12 +162,15 @@ public class MenuRepository {
 
 	public WelcomeMenu loadWelcomeMenuLinkByID(Integer id) {
 		try {
-			WelcomeMenu welcomeMenu = this.jdbcTemplate.queryForObject("select * from menu_welcome where id = ? ",
+			WelcomeMenu welcomeMenu = this.jdbcTemplate.queryForObject(
+					"select a.id, a.link, b.id as group_id, b.name from menu_welcome a inner join groups b on a.group_id = b.id where a.id = ? ",
 					new Object[] { id }, new RowMapper<WelcomeMenu>() {
 						public WelcomeMenu mapRow(ResultSet rs, int rowNum) throws SQLException {
 							WelcomeMenu welcomeMenu = new WelcomeMenu();
 							welcomeMenu.setId(rs.getInt("id"));
 							welcomeMenu.setLink(rs.getString("link"));
+							welcomeMenu.setGroupName(rs.getString("name"));
+							welcomeMenu.setGroupID(rs.getInt("group_id"));
 							return welcomeMenu;
 						}
 					});
@@ -180,12 +182,15 @@ public class MenuRepository {
 
 	public List<WelcomeMenu> loadWelcomeMenuLink() {
 		try {
-			List<WelcomeMenu> welcomeMenu = this.jdbcTemplate.query("select * from menu_welcome",
+			List<WelcomeMenu> welcomeMenu = this.jdbcTemplate.query(
+					"select a.id, a.link, b.id as group_id, b.name from menu_welcome a inner join groups b on a.group_id = b.id;",
 					new RowMapper<WelcomeMenu>() {
 						public WelcomeMenu mapRow(ResultSet rs, int rowNum) throws SQLException {
 							WelcomeMenu welcomeMenu = new WelcomeMenu();
 							welcomeMenu.setId(rs.getInt("id"));
 							welcomeMenu.setLink(rs.getString("link"));
+							welcomeMenu.setGroupName(rs.getString("name"));
+							welcomeMenu.setGroupID(rs.getInt("group_id"));
 							return welcomeMenu;
 						}
 					});

@@ -27,7 +27,8 @@ public interface Transfer {
 			@WebParam ConfirmPaymentRequest req);
 
 	@WebMethod(action = "loadPendingTransaction")
-	public PendingPaymentResponse loadPendingTransaction(@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
+	public PendingPaymentResponse loadPendingTransaction(
+			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
 			@WebParam PendingPaymentRequest req);
 
 	@WebMethod(action = "generatePaymentTicket")
@@ -57,4 +58,9 @@ public interface Transfer {
 	@WebMethod(action = "createPaymentCustomFields")
 	public void createPaymentCustomFields(@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
 			@WebParam CreatePaymentCustomFieldsRequest req) throws Exception;
+
+	@WebMethod(action = "requestPaymentInquiry")
+	public InquiryResponse requestPaymentInquiry(
+			@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
+			@WebParam PaymentInquiryRequest req);
 }
