@@ -182,6 +182,11 @@ public class AccessRepository {
 				newCredential, memberID, accessTypeID);
 	}
 
+	public void resetCredential(Integer memberID, Integer accessTypeID) {
+		this.jdbcTemplate.update("delete from access where member_id = ? and access_type_id = ?", memberID,
+				accessTypeID);
+	}
+
 	public void unblockCredential(Integer memberID, Integer accessTypeID) {
 		this.jdbcTemplate.update("update access set blocked = false where member_id = ? and access_type_id = ?",
 				memberID, accessTypeID);

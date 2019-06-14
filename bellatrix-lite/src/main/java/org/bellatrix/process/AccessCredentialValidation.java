@@ -63,6 +63,10 @@ public class AccessCredentialValidation {
 		baseRepository.getAccessesRepository().changeCredential(memberID, accessID, newCredential);
 	}
 
+	public void resetCredential(Integer memberID, Integer accessID) {
+		baseRepository.getAccessesRepository().resetCredential(memberID, accessID);
+	}
+
 	public CredentialResponse getSecretFromMember(Integer memberID, Integer accessID) throws TransactionException {
 		return baseRepository.getAccessesRepository().getSecretFromMemberID(memberID, accessID);
 	}

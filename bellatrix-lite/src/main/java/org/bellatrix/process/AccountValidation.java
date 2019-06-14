@@ -3,8 +3,10 @@ package org.bellatrix.process;
 import java.math.BigDecimal;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.bellatrix.data.AccountBalance;
 import org.bellatrix.data.AccountPermissions;
 import org.bellatrix.data.Accounts;
+import org.bellatrix.data.ClosedAccountBalance;
 import org.bellatrix.data.Members;
 import org.bellatrix.data.Status;
 import org.bellatrix.data.TransactionException;
@@ -154,11 +156,34 @@ public class AccountValidation {
 			throws TransactionException {
 
 		BigDecimal balance = BigDecimal.ZERO;
-		BigDecimal accountBalance = baseRepository.getAccountsRepository().loadBalanceInquiry(member.getUsername(),
-				account.getId());
+
 		BigDecimal reservedBalance = baseRepository.getAccountsRepository().loadReservedAmount(member.getUsername(),
 				account.getId());
-		balance = accountBalance.add(reservedBalance);
+
+		/**
+		 * REMARK THIS TO USE CLOSED ACCOUNT BALANCE BigDecimal accountBalance =
+		 * baseRepository.getAccountsRepository().loadBalanceInquiry(member.getUsername(),
+		 * account.getId()); balance = accountBalance.add(reservedBalance);
+		 **/
+
+		/** USING CLOSED ACCOUNT BALANCE **/
+		ClosedAccountBalance caBalance = baseRepository.getAccountsRepository().loadClosedAccountBalance(member.getId(),
+				account.getId());
+		if (caBalance != null) {
+			BigDecimal currentBalance = baseRepository.getAccountsRepository().loadBalanceInquiry(member.getUsername(),
+					account.getId(), caBalance.getLastTransferID());
+			BigDecimal accountBalance = caBalance.getBalance().add(currentBalance);
+			balance = accountBalance.add(reservedBalance);
+			logger.info("[Member = " + member.getUsername() + ", Closed Account Balance = " + caBalance.getBalance()
+					+ ", Current Balance = " + currentBalance + ", Total Balance = " + accountBalance
+					+ ", Reserved Balance = " + reservedBalance + ", Final Balance = " + balance + "]");
+		} else {
+			BigDecimal accountBalance = baseRepository.getAccountsRepository().loadBalanceInquiry(member.getUsername(),
+					account.getId());
+			balance = accountBalance.add(reservedBalance);
+		}
+		/** ////////////////////////// **/
+
 		String marking = source == true ? " (-) " : " (+) ";
 
 		logger.info("[" + member.getUsername() + " Account Balance : " + balance + marking + " Amount : " + finalAmount
@@ -179,6 +204,74 @@ public class AccountValidation {
 		}
 
 		return balance;
+	}
+
+	public AccountBalance validateAccountBalanceObj(Members member, Accounts account, BigDecimal finalAmount,
+			boolean source) throws TransactionException {
+
+		BigDecimal balance = BigDecimal.ZERO;
+		BigDecimal accountBalance = baseRepository.getAccountsRepository().loadBalanceInquiry(member.getUsername(),
+				account.getId());
+		BigDecimal reservedBalance = baseRepository.getAccountsRepository().loadReservedAmount(member.getUsername(),
+				account.getId());
+		balance = accountBalance.add(reservedBalance);
+		String marking = source == true ? " (-) " : " (+) ";
+
+		logger.info("[" + member.getUsername() + " Account Balance : " + balance + marking + " Amount : " + finalAmount
+				+ "]");
+		BigDecimal creditLimit = balance.subtract(finalAmount);
+		logger.info("[Lower Credit Limit : " + account.getLowerCreditLimit() + "/" + creditLimit + "]");
+
+		if (source) {
+			if ((balance.subtract(finalAmount)).compareTo(account.getLowerCreditLimit()) < 0) {
+				logger.info("[Source Account has Insufficient Balance]");
+				throw new TransactionException(String.valueOf(Status.INSUFFICIENT_BALANCE));
+			}
+		} else {
+			logger.info("[Credit Limit : " + account.getCreditLimit() + "/" + balance.add(finalAmount) + "]");
+			if ((balance.add(finalAmount)).compareTo(account.getCreditLimit()) > 0) {
+				throw new TransactionException(String.valueOf(Status.CREDIT_LIMIT_REACHED));
+			}
+		}
+
+		AccountBalance accBalance = new AccountBalance(balance, reservedBalance, finalAmount, creditLimit, source);
+		return accBalance;
+	}
+
+	public BigDecimal validateSystemAccountBalance(Members member, Accounts account, BigDecimal finalAmount,
+			boolean source) throws TransactionException {
+
+		BigDecimal balance = BigDecimal.ZERO;
+		BigDecimal accountBalance = baseRepository.getAccountsRepository().loadBalanceInquiry(member.getUsername(),
+				account.getId());
+		BigDecimal reservedBalance = baseRepository.getAccountsRepository().loadReservedAmount(member.getUsername(),
+				account.getId());
+		balance = accountBalance.add(reservedBalance);
+		String marking = source == true ? " (-) " : " (+) ";
+
+		logger.info("[" + member.getUsername() + " System Account Balance : " + balance + marking + " Amount : "
+				+ finalAmount + "]");
+
+		return balance;
+	}
+
+	public AccountBalance validateSystemAccountBalanceObj(Members member, Accounts account, BigDecimal finalAmount,
+			boolean source) throws TransactionException {
+
+		BigDecimal balance = BigDecimal.ZERO;
+		BigDecimal accountBalance = baseRepository.getAccountsRepository().loadBalanceInquiry(member.getUsername(),
+				account.getId());
+		BigDecimal reservedBalance = baseRepository.getAccountsRepository().loadReservedAmount(member.getUsername(),
+				account.getId());
+		balance = accountBalance.add(reservedBalance);
+		String marking = source == true ? " (-) " : " (+) ";
+
+		logger.info("[" + member.getUsername() + " System Account Balance : " + balance + marking + " Amount : "
+				+ finalAmount + "]");
+
+		AccountBalance accBalance = new AccountBalance(balance, reservedBalance, finalAmount, source);
+		return accBalance;
+
 	}
 
 	public BigDecimal loadBalanceInquiry(String username, Integer accountID) {

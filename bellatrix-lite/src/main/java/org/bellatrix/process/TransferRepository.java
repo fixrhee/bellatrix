@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.bellatrix.data.Accounts;
-import org.bellatrix.data.BrokeringResult;
 import org.bellatrix.data.Brokers;
 import org.bellatrix.data.Fees;
 import org.bellatrix.data.Members;

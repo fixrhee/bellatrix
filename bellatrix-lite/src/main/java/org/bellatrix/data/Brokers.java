@@ -22,6 +22,8 @@ public class Brokers implements Serializable {
 	private BigDecimal fixedAmount;
 	private BigDecimal percentageValue;
 	private BigDecimal feeAmount;
+	private AccountBalance fromLastBalance;
+	private AccountBalance toLastBalance;
 	private String transactionNumber;
 	private String requestTransactionAmount;
 
@@ -167,6 +169,22 @@ public class Brokers implements Serializable {
 
 	public void setDeductAllFee(boolean deductAllFee) {
 		this.deductAllFee = deductAllFee;
+	}
+
+	public AccountBalance getFromLastBalance() {
+		return fromLastBalance;
+	}
+
+	public void setFromLastBalance(AccountBalance fromLastBalance) {
+		this.fromLastBalance = fromLastBalance;
+	}
+
+	public AccountBalance getToLastBalance() {
+		return toLastBalance;
+	}
+
+	public void setToLastBalance(AccountBalance toLastBalance) {
+		this.toLastBalance = toLastBalance;
 	}
 
 }

@@ -31,7 +31,7 @@ public interface Access {
 			@WebParam CredentialStatusRequest req);
 
 	@WebMethod(action = "resetCredential")
-	public void resetCredential(@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
+	public ResetCredentialResponse resetCredential(@WebParam(header = true, name = "headerAuth") Holder<Header> headerParam,
 			@WebParam ResetCredentialRequest req) throws TransactionException;
 
 	@WebMethod(action = "unblockCredential")

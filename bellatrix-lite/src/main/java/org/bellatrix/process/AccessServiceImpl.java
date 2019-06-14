@@ -23,6 +23,7 @@ import org.bellatrix.services.CredentialStatusResponse;
 import org.bellatrix.services.Header;
 import org.bellatrix.services.LoadAccessTypeResponse;
 import org.bellatrix.services.ResetCredentialRequest;
+import org.bellatrix.services.ResetCredentialResponse;
 import org.bellatrix.services.CredentialRequest;
 import org.bellatrix.services.CredentialResponse;
 import org.bellatrix.services.UnblockCredentialRequest;
@@ -133,50 +134,29 @@ public class AccessServiceImpl implements Access {
 
 	@Override
 	@Transactional
-	public void resetCredential(Holder<Header> headerParam, ResetCredentialRequest req) throws TransactionException {
+	public ResetCredentialResponse resetCredential(Holder<Header> headerParam, ResetCredentialRequest req)
+			throws TransactionException {
 		webserviceValidation.validateWebservice(headerParam.value.getToken());
 		Members member = memberValidation.validateMember(req.getUsername(), true);
+		ResetCredentialResponse resp = new ResetCredentialResponse();
 
-		if (member.getEmail() != null) {
-			if (!member.getEmail().equalsIgnoreCase(req.getEmail())) {
-				throw new TransactionException(String.valueOf(Status.MEMBER_NOT_FOUND));
-			}
-		} else {
-			throw new TransactionException(String.valueOf(Status.INVALID_PARAMETER));
-		}
-
+		/* === VALIDATE EMAIL ====
+		 * if (member.getEmail() != null) { if
+		 * (!member.getEmail().equalsIgnoreCase(req.getEmail())) { throw new
+		 * TransactionException(String.valueOf(Status.MEMBER_NOT_FOUND)); } } else {
+		 * throw new TransactionException(String.valueOf(Status.INVALID_PARAMETER)); }
+		 */
+		
 		Groups group = groupValidation.loadGroupsByID(member.getGroupID());
 		String newCredential = Utils.GenerateRandomNumber(group.getPinLength());
 
-		Notifications notif = baseRepository.getNotificationsRepository()
-				.loadDefaultNotificationByGroupID(group.getId());
+		accessValidation.changeCredential(member.getId(), req.getAccessTypeID(), newCredential);
+		accessValidation.unblockCredential(member.getId(), req.getAccessTypeID());
+		accessValidation.clearAccessAttemptsRecord(member.getId(), req.getAccessTypeID());
 
-		/*
-		 * SEND NOTIFICATION HERE
-		 */
-
-		notif.setNotificationType("resetCredential");
-		List<Notifications> lm = new LinkedList<Notifications>();
-		lm.add(notif);
-
-		HashMap<String, Object> notifMap = new HashMap<String, Object>();
-		notifMap.put("notification", lm);
-		notifMap.put("email", member.getEmail());
-		notifMap.put("pin", newCredential);
-
-		try {
-			MuleClient client;
-			client = new MuleClient(configurator.getMuleContext());
-			Map<String, Object> header = new HashMap<String, Object>();
-			client.dispatch("NotificationVM", notifMap, header);
-
-			accessValidation.changeCredential(member.getId(), req.getAccessTypeID(), newCredential);
-			accessValidation.unblockCredential(member.getId(), req.getAccessTypeID());
-			accessValidation.clearAccessAttemptsRecord(member.getId(), req.getAccessTypeID());
-
-		} catch (MuleException e) {
-			throw new TransactionException(String.valueOf((Status.UNKNOWN_ERROR)));
-		}
+		resp.setMember(member);
+		resp.setCredential(newCredential);
+		return resp;
 	}
 
 	@Override

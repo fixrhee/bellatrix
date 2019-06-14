@@ -14,20 +14,20 @@ public class ResetCredentialRequest {
 		this.username = username;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public Integer getAccessTypeID() {
 		return accessTypeID;
 	}
 
 	public void setAccessTypeID(Integer accessTypeID) {
 		this.accessTypeID = accessTypeID;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 }

@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 
 import org.bellatrix.data.AccountPermissions;
 import org.bellatrix.data.Accounts;
+import org.bellatrix.data.ClosedAccountBalance;
 import org.bellatrix.data.Currencies;
 import org.bellatrix.data.Groups;
 import org.bellatrix.data.Transfers;
@@ -26,12 +27,13 @@ public class AccountRepository {
 	private JdbcTemplate jdbcTemplate;
 
 	public void createAccount(String name, String description, boolean system, Integer currencyID) {
-		jdbcTemplate.update("insert into accounts (name, description, system_account, currency_id) values (?, ?, ?, ?)", name,
-				description, system, currencyID);
+		jdbcTemplate.update("insert into accounts (name, description, system_account, currency_id) values (?, ?, ?, ?)",
+				name, description, system, currencyID);
 	}
 
 	public void updateAccount(Integer id, Integer currencyID, String name, String description, boolean system) {
-		this.jdbcTemplate.update("update  accounts set name = ?, description = ?, system_account= ?, currency_id= ? where id = ?",
+		this.jdbcTemplate.update(
+				"update  accounts set name = ?, description = ?, system_account= ?, currency_id= ? where id = ?",
 				new Object[] { name, description, system, currencyID, id });
 	}
 
@@ -275,6 +277,21 @@ public class AccountRepository {
 		}
 	}
 
+	public BigDecimal loadBalanceInquiry(String username, Integer accountID, Integer transactionID) {
+		try {
+			BigDecimal balance = jdbcTemplate.queryForObject(
+					"select sum(journal) as balance from (select sum(-amount) as journal from transfers join members on members.id = transfers.from_member_id where members.username = ? and transfers.from_account_id = ? and transfers.transaction_state = 'PROCESSED' and transfers.charged_back = false and transfers.id > ? union all select sum(amount) as journal from transfers join members on members.id = transfers.to_member_id where members.username = ? and transfers.to_account_id = ? and transfers.transaction_state = 'PROCESSED'  and transfers.charged_back = false and transfers.id > ?) t1",
+					new Object[] { username, accountID, transactionID, username, accountID, transactionID },
+					BigDecimal.class);
+			if (balance == null) {
+				return BigDecimal.ZERO;
+			}
+			return balance;
+		} catch (EmptyResultDataAccessException e) {
+			return BigDecimal.ZERO;
+		}
+	}
+
 	public BigDecimal loadReservedAmount(String username, Integer accountID) {
 		try {
 			BigDecimal balance = jdbcTemplate.queryForObject(
@@ -286,6 +303,26 @@ public class AccountRepository {
 			return balance;
 		} catch (EmptyResultDataAccessException e) {
 			return BigDecimal.ZERO;
+		}
+	}
+
+	public ClosedAccountBalance loadClosedAccountBalance(Integer memberID, Integer accountID) {
+		try {
+			ClosedAccountBalance accounts = this.jdbcTemplate.queryForObject(
+					"select * from closed_account_balance where member_id = ? and account_id = ?;",
+					new Object[] { memberID, accountID }, new RowMapper<ClosedAccountBalance>() {
+						public ClosedAccountBalance mapRow(ResultSet rs, int rowNum) throws SQLException {
+							ClosedAccountBalance accounts = new ClosedAccountBalance();
+							accounts.setAccountID(rs.getInt("account_id"));
+							accounts.setMemberID(rs.getInt("member_id"));
+							accounts.setLastTransferID(rs.getInt("last_transfer_id"));
+							accounts.setBalance(rs.getBigDecimal("balance"));
+							return accounts;
+						}
+					});
+			return accounts;
+		} catch (EmptyResultDataAccessException e) {
+			return null;
 		}
 	}
 

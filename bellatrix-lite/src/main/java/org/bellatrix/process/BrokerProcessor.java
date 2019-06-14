@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.bellatrix.data.AccountBalance;
 import org.bellatrix.data.Accounts;
 import org.bellatrix.data.BrokeringResult;
 import org.bellatrix.data.Brokers;
@@ -16,17 +18,25 @@ import org.bellatrix.data.TransactionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+
 @Component
 public class BrokerProcessor {
 
 	@Autowired
 	private BaseRepository baseRepository;
+	@Autowired
+	private HazelcastInstance instance;
+	@Autowired
+	private AccountValidation accountValidation;
 	private Logger logger = Logger.getLogger(BrokerProcessor.class);
 
 	public List<BrokeringResult> procesBrokering(List<Fees> fees, String transactionNumber)
 			throws TransactionException {
 
 		List<BrokeringResult> lbr = new ArrayList<BrokeringResult>();
+		IMap<String, BigDecimal> mapLock = instance.getMap("AccountLock");
 
 		for (int i = 0; i < fees.size(); i++) {
 
@@ -34,6 +44,8 @@ public class BrokerProcessor {
 			BigDecimal feeAmount = fees.get(i).getFeeAmount();
 			List<BigDecimal> brokeringAmount = new LinkedList<BigDecimal>();
 			boolean processBrokering = false;
+			AccountBalance fromLastBalance = new AccountBalance();
+			AccountBalance toLastBalance = new AccountBalance();
 			List<Brokers> lb = baseRepository.getTransferTypesRepository().getBrokersFromFee(fees.get(i).getId());
 
 			for (int j = 0; j < lb.size(); j++) {
@@ -85,6 +97,9 @@ public class BrokerProcessor {
 						lb.get(j).setFromMemberID(fees.get(i).getFromMemberID());
 						lb.get(j).setFromAccountID(fees.get(i).getFromAccountID());
 
+						fromLastBalance = lb.get(j).getFromLastBalance();
+						toLastBalance = lb.get(j).getToLastBalance();
+
 						logger.info("[SOURCE Brokering]");
 						logger.info("[BROKER Source Member ID : " + lb.get(j).getFromMemberID() + "]");
 						logger.info("[BROKER Source Account ID : " + lb.get(j).getFromAccountID() + "]");
@@ -95,6 +110,9 @@ public class BrokerProcessor {
 					} else if (lb.get(j).getFromMemberID() == -1 || lb.get(j).getFromAccountID() == -1) {
 						lb.get(j).setFromMemberID(fees.get(i).getToMemberID());
 						lb.get(j).setFromAccountID(fees.get(i).getToAccountID());
+
+						fromLastBalance = lb.get(j).getFromLastBalance();
+						toLastBalance = lb.get(j).getToLastBalance();
 
 						logger.info("[DESTINATION Brokering]");
 						logger.info("[BROKER Source Member ID : " + lb.get(j).getFromMemberID() + "]");
@@ -131,6 +149,21 @@ public class BrokerProcessor {
 							logger.info("[Invalid Source Brokering AccountID [" + lb.get(j).getFromAccountID() + "]]");
 							throw new TransactionException(String.valueOf(Status.INVALID_ACCOUNT));
 						}
+
+						/*
+						 * From Brokering BalanceInquiry
+						 */
+						logger.info("[Trying to Lock Source Brokering . . . ]");
+						if (mapLock.isLocked(fromBrokerMember.getUsername() + fromBrokerAccount.getId()) == false) {
+							logger.info("[LOCK Source Brokering : " + fromBrokerMember.getUsername() + "/"
+									+ fromBrokerAccount.getId() + "]");
+							mapLock.lock(fromBrokerMember.getUsername() + fromBrokerAccount.getId(), 80000,
+									TimeUnit.MILLISECONDS);
+						}
+
+						accountValidation.validateMonthlyLimit(fromBrokerMember, fromBrokerAccount, feeAmount, true);
+						fromLastBalance = accountValidation.validateAccountBalanceObj(fromBrokerMember,
+								fromBrokerAccount, feeAmount, true);
 					}
 
 					/*
@@ -154,6 +187,21 @@ public class BrokerProcessor {
 						throw new TransactionException(String.valueOf(Status.INVALID_ACCOUNT));
 					}
 
+					/*
+					 * Destination Brokering BalanceInquiry
+					 */
+					logger.info("[Trying to Lock Destination Brokering . . . ]");
+					if (mapLock.isLocked(toBrokerMember.getUsername() + toBrokerAccount.getId()) == false) {
+						logger.info("[LOCK Destination Brokering : " + toBrokerMember.getUsername() + "/"
+								+ toBrokerAccount.getId() + "]");
+						mapLock.lock(toBrokerMember.getUsername() + toBrokerAccount.getId(), 80000,
+								TimeUnit.MILLISECONDS);
+					}
+
+					accountValidation.validateMonthlyLimit(toBrokerMember, toBrokerAccount, feeAmount, true);
+					toLastBalance = accountValidation.validateAccountBalanceObj(toBrokerMember, toBrokerAccount,
+							feeAmount, true);
+
 					String clusterid = System.getProperty("mule.clusterId") != null
 							? System.getProperty("mule.clusterId")
 							: "00";
@@ -162,7 +210,9 @@ public class BrokerProcessor {
 					lb.get(j).setTransactionNumber(brokeringTrxNo);
 					lb.get(j).setFeeTransactionNumber(fees.get(i).getTransactionNumber());
 					lb.get(j).setRequestTransactionAmount(transactionNumber);
-					
+					lb.get(j).setFromLastBalance(fromLastBalance);
+					lb.get(j).setToLastBalance(toLastBalance);
+
 					br.setTotalBrokeringAmount(result);
 					br.setFeeAmount(feeAmount);
 					br.setListBrokers(lb);

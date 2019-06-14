@@ -10,6 +10,7 @@ import javax.xml.ws.Holder;
 import org.apache.log4j.Logger;
 import org.bellatrix.data.AccountPermissions;
 import org.bellatrix.data.Accounts;
+import org.bellatrix.data.ClosedAccountBalance;
 import org.bellatrix.data.Currencies;
 import org.bellatrix.data.MemberView;
 import org.bellatrix.data.Members;
@@ -141,7 +142,21 @@ public class AccountServiceImpl implements Account {
 			Currencies currency = baseRepository.getCurrenciesRepository()
 					.loadCurrencyByID(account.getCurrency().getId());
 			account.setCurrency(currency);
-			BigDecimal balance = accountValidation.loadBalanceInquiry(req.getUsername(), req.getAccountID());
+
+			BigDecimal balance = BigDecimal.ZERO;
+
+			ClosedAccountBalance caBalance = baseRepository.getAccountsRepository()
+					.loadClosedAccountBalance(fromMember.getId(), account.getId());
+			if (caBalance != null) {
+				BigDecimal currentBalance = baseRepository.getAccountsRepository().loadBalanceInquiry(
+						fromMember.getUsername(), account.getId(), caBalance.getLastTransferID());
+				balance = caBalance.getBalance().add(currentBalance);
+				logger.info("[Member = " + fromMember.getUsername() + ", Closed Account Balance = " + caBalance.getBalance()
+						+ ", Current Balance = " + currentBalance + ", Final Balance = " + balance + "]");
+			} else {
+				balance = accountValidation.loadBalanceInquiry(req.getUsername(), req.getAccountID());
+			}
+
 			BigDecimal reservedAmount = accountValidation.loadReservedAmount(req.getUsername(), req.getAccountID());
 
 			balanceResponse.setBalance(balance);

@@ -250,5 +250,4 @@ public class Fees implements Serializable {
 	public void setToAllMember(boolean toAllMember) {
 		this.toAllMember = toAllMember;
 	}
-
 }
